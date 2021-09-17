@@ -1,5 +1,7 @@
 # A simple watcher for pytest
 
+![PyPI](https://img.shields.io/pypi/v/pytest-watcher)
+
 ## Overview
 
 **pytest-watcher** is a tool to automatically rerun `pytest` whenever any `.py` file changes in your project.
