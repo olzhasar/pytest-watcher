@@ -1,4 +1,4 @@
-from pytest_watcher import watcher
+from .watcher import run
 
 if __name__ == "__main__":
-    raise SystemExit(watcher.run())
+    raise SystemExit(run())
