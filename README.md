@@ -1,6 +1,8 @@
 # A simple watcher for pytest
 
 ![PyPI](https://img.shields.io/pypi/v/pytest-watcher)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-watcher)
+![GitHub](https://img.shields.io/github/license/olzhasar/pytest-watcher)
 
 ## Overview
 
