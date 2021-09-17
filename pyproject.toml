@@ -6,9 +6,14 @@ authors = ["olzhasar <o.arystanov@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+inotify = "^0.2.10"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+flake8 = "^3.9.2"
+black = "^21.9b0"
+mypy = "^0.910"
+isort = "^5.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
