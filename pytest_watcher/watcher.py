@@ -8,7 +8,6 @@ from pathlib import Path
 
 import inotify.adapters
 import inotify.constants
-import pytest
 
 logger = logging.getLogger("main")
 handler = logging.FileHandler("watcher.log")
@@ -30,7 +29,7 @@ def _is_ignored_by_git(filepath: str):
 
 
 def _run_pytest(args):
-    return pytest.main(args=args)
+    subprocess.run(["pytest", *args])
 
 
 trigger_lock = threading.Lock()
