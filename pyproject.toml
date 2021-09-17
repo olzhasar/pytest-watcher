@@ -1,8 +1,25 @@
 [tool.poetry]
 name = "pytest-watcher"
 version = "0.1.0"
-description = ""
+description = "Continiously watches for changes in your python files and runs pytest"
 authors = ["olzhasar <o.arystanov@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/olzhasar/pytest-watcher"
+repository = "https://github.com/olzhasar/pytest-watcher"
+keywords = ["pytest", "watch", "watcher"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Utilities",
+]
+include = [
+    "LICENSE",
+]
 
 [tool.poetry.scripts]
 pytest_watcher = "pytest_watcher:run"
