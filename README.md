@@ -7,7 +7,14 @@
 ## Overview
 
 **pytest-watcher** is a tool to automatically rerun `pytest` when your code changes.
-It looks for `*.py` files changes in a directory that you specify. `pytest` will be automatically invoked when you create new files and modify or delete existing.
+It looks for the following events:
+- New `*.py` file created
+- Existing `*.py` file modified
+- Existing `*.py` file deleted
+
+## What about pytest-watch?
+
+[pytest-watch](https://github.com/joeyespo/pytest-watch) was around for a long time and was solving exactly this problem. Sadly, `pytest-watch` is not maintained anymore and not working for many users. I wrote this tool as a substitute
 
 ## Install pytest-watcher
 
@@ -27,13 +34,13 @@ or
 ptw /home/repos/project
 ```
 
-Any additional arguments will be forwarded to `pytest`:
+Any arguments after `<path>` will be forwarded to `pytest`:
 ```
 ptw . -x --lf --nf
 ```
 
 ## Compatibility
 
-The utility is OS independent and should work on any platform.
+The utility is OS independent and should be able to work with any platform.
 
 Code is tested for Python versions 3.6+
