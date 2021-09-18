@@ -20,16 +20,16 @@ pip install pytest-watcher
 Specify the path that you want to watch:
 
 ```
-pytest_watcher .
+ptw .
 ```
 or 
 ```
-pytest_watcher /home/repos/project
+ptw /home/repos/project
 ```
 
 Any additional arguments will be forwarded to `pytest`:
 ```
-pytest_watcher . -x --lf --nf
+ptw . -x --lf --nf
 ```
 
 ## Compatibility

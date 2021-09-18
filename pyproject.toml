@@ -22,7 +22,8 @@ include = [
 ]
 
 [tool.poetry.scripts]
-pytest_watcher = "pytest_watcher:run"
+pytest-watcher = "pytest_watcher:run"
+ptw = "pytest_watcher:run"
 
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0.0"
