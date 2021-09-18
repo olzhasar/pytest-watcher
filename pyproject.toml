@@ -26,7 +26,7 @@ pytest_watcher = "pytest_watcher:run"
 
 [tool.poetry.dependencies]
 python = ">=3.6.2,<4.0.0"
-inotify = "^0.2.10"
+watchdog = "^2.1.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
