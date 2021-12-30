@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-watcher"
-version = "0.2.1"
+version = "0.2.2"
 description = "Continiously runs pytest on changes in *.py files"
 authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
 license = "MIT"
