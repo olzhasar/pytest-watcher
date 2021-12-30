@@ -9,7 +9,7 @@ from watchdog import events
 
 
 def test_version():
-    assert __version__ == "0.2.2"
+    assert __version__ == "0.2.3"
 
 
 @pytest.fixture()
