@@ -4,8 +4,9 @@ from unittest.mock import MagicMock
 import pytest
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
-from pytest_watcher import __version__, watcher
 from watchdog import events
+
+from pytest_watcher import __version__, watcher
 
 
 def test_version():
@@ -50,7 +51,7 @@ class TestEventHandler:
         return mocker.patch("pytest_watcher.watcher.emit_trigger")
 
     @pytest.mark.parametrize("event_type", watcher.EventHandler.EVENTS_WATCHED)
-    def test_ok(self, event_type, mock_emit_trigger: MagicMock):
+    def test_src_watched(self, event_type, mock_emit_trigger: MagicMock):
         event = events.FileSystemEvent("main.py")
         event.event_type = event_type
 
@@ -59,16 +60,40 @@ class TestEventHandler:
 
         mock_emit_trigger.assert_called_once_with()
 
-    def test_wrong_event_type(self, mock_emit_trigger: MagicMock):
-        event = events.FileClosedEvent("main.py")
+    @pytest.mark.parametrize(
+        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
+    )
+    def test_file_moved_dest_watched(self, event_class, mock_emit_trigger: MagicMock):
+        event = event_class("main.tmp", "main.py")
+
+        handler = watcher.EventHandler()
+        handler.dispatch(event)
+
+        mock_emit_trigger.assert_called_once_with()
+
+    @pytest.mark.parametrize(
+        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
+    )
+    def test_file_moved_dest_not_watched(
+        self, event_class, mock_emit_trigger: MagicMock
+    ):
+        event = event_class("main.tmp", "main.temp")
 
         handler = watcher.EventHandler()
         handler.dispatch(event)
 
         mock_emit_trigger.assert_not_called()
 
-    def test_file_not_watched(self, mock_emit_trigger: MagicMock):
+    def test_src_not_watched(self, mock_emit_trigger: MagicMock):
         event = events.FileCreatedEvent("main.pyc")
+
+        handler = watcher.EventHandler()
+        handler.dispatch(event)
+
+        mock_emit_trigger.assert_not_called()
+
+    def test_wrong_event_type(self, mock_emit_trigger: MagicMock):
+        event = events.FileClosedEvent("main.py")
 
         handler = watcher.EventHandler()
         handler.dispatch(event)
