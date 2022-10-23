@@ -47,6 +47,10 @@ class EventHandler(events.FileSystemEventHandler):
     def process_event(self, event: events.FileSystemEvent) -> None:
         if _is_path_watched(event.src_path):
             emit_trigger()
+        elif isinstance(event, events.FileSystemMovedEvent) and _is_path_watched(
+            event.dest_path
+        ):
+            emit_trigger()
 
 
 def _run_pytest(args) -> None:
