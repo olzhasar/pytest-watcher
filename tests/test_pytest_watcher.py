@@ -10,7 +10,7 @@ from pytest_watcher import __version__, watcher
 
 
 def test_version():
-    assert __version__ == "0.2.3"
+    assert __version__ == "0.2.4"
 
 
 @pytest.fixture()
