@@ -1,26 +1,17 @@
+import sys
 from datetime import datetime
 from unittest.mock import MagicMock
 
 import pytest
 from freezegun import freeze_time
-from pytest_mock import MockerFixture
+from pytest_mock.plugin import MockerFixture
 from watchdog import events
 
 from pytest_watcher import __version__, watcher
 
 
 def test_version():
-    assert __version__ == "0.2.4"
-
-
-@pytest.fixture()
-def mock_subprocess_run(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.subprocess.run")
-
-
-@pytest.fixture(autouse=True)
-def mock_time_sleep(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.time.sleep")
+    assert __version__ == "0.2.5"
 
 
 @pytest.fixture(autouse=True)
@@ -46,10 +37,6 @@ def test_is_path_watched(filepath, expected):
 
 
 class TestEventHandler:
-    @pytest.fixture
-    def mock_emit_trigger(self, mocker: MockerFixture):
-        return mocker.patch("pytest_watcher.watcher.emit_trigger")
-
     @pytest.mark.parametrize("event_type", watcher.EventHandler.EVENTS_WATCHED)
     def test_src_watched(self, event_type, mock_emit_trigger: MagicMock):
         event = events.FileSystemEvent("main.py")
@@ -113,19 +100,22 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "delay", "pytest_args"),
+    ("sys_args", "path_to_watch", "now", "delay", "pytest_args"),
     [
-        (["/home/"], "/home", 0.5, []),
-        (["/home/", "--lf", "--nf", "-x"], "/home", 0.5, ["--lf", "--nf", "-x"]),
-        ([".", "--lf", "--nf", "-x"], ".", 0.5, ["--lf", "--nf", "-x"]),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", 0.2, ["--lf", "--nf", "-x"]),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", 0.3, ["--lf", "--nf", "-x"]),
+        (["/home/"], "/home", False, 0.5, []),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"]),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"]),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"]),
+        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"]),
+        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"]),
+        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"]),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, delay, pytest_args):
-    _path, _delay, _pytest_args = watcher._parse_arguments(sys_args)
+def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args):
+    _path, _now, _delay, _pytest_args = watcher._parse_arguments(sys_args)
 
     assert str(_path) == path_to_watch
+    assert _now == now
     assert _delay == delay
     assert _pytest_args == pytest_args
 
@@ -173,3 +163,49 @@ def test_run_main_loop_trigger(
     mock_time_sleep.assert_called_once_with(5)
 
     assert watcher.trigger is None
+
+
+def test_run(
+    mocker: MockerFixture,
+    mock_observer: MagicMock,
+    mock_emit_trigger: MagicMock,
+    mock_run_main_loop: MagicMock,
+):
+    args = ["ptw", ".", "--lf", "--nf"]
+
+    mocker.patch.object(sys, "argv", args)
+
+    with pytest.raises(InterruptedError):
+        watcher.run()
+
+    mock_observer.assert_called_once_with()
+    observer_instance = mock_observer.return_value
+    observer_instance.schedule.assert_called_once()
+    observer_instance.start.assert_called_once()
+
+    mock_emit_trigger.assert_not_called()
+
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"])
+
+
+def test_run_now(
+    mocker: MockerFixture,
+    mock_observer: MagicMock,
+    mock_emit_trigger: MagicMock,
+    mock_run_main_loop: MagicMock,
+):
+    args = ["ptw", ".", "--lf", "--nf", "--now"]
+
+    mocker.patch.object(sys, "argv", args)
+
+    with pytest.raises(InterruptedError):
+        watcher.run()
+
+    mock_observer.assert_called_once_with()
+    observer_instance = mock_observer.return_value
+    observer_instance.schedule.assert_called_once()
+    observer_instance.start.assert_called_once()
+
+    mock_emit_trigger.assert_called_once_with()
+
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"])
