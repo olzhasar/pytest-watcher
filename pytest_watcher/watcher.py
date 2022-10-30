@@ -57,7 +57,7 @@ def _run_pytest(args) -> None:
     subprocess.run(["pytest", *args])
 
 
-def _parse_arguments(args: Sequence[str]) -> Tuple[Path, float, Sequence[str]]:
+def _parse_arguments(args: Sequence[str]) -> Tuple[Path, bool, float, Sequence[str]]:
     parser = argparse.ArgumentParser(
         prog="pytest_watcher",
         description="""
@@ -67,6 +67,7 @@ def _parse_arguments(args: Sequence[str]) -> Tuple[Path, float, Sequence[str]]:
         """,
     )
     parser.add_argument("path", type=Path, help="path to watch")
+    parser.add_argument("--now", action="store_true", help="Run pytest instantly")
     parser.add_argument(
         "--delay",
         type=float,
@@ -76,7 +77,7 @@ def _parse_arguments(args: Sequence[str]) -> Tuple[Path, float, Sequence[str]]:
 
     namespace, pytest_args = parser.parse_known_args(args)
 
-    return namespace.path, namespace.delay, pytest_args
+    return namespace.path, namespace.now, namespace.delay, pytest_args
 
 
 def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
@@ -93,7 +94,7 @@ def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
 
 
 def run():
-    path_to_watch, delay, pytest_args = _parse_arguments(sys.argv[1:])
+    path_to_watch, now, delay, pytest_args = _parse_arguments(sys.argv[1:])
 
     event_handler = EventHandler()
 
@@ -101,6 +102,9 @@ def run():
 
     observer.schedule(event_handler, path_to_watch, recursive=True)
     observer.start()
+
+    if now:
+        emit_trigger()
 
     try:
         while True:
