@@ -214,3 +214,31 @@ def test_run_now(
     mock_emit_trigger.assert_called_once_with()
 
     mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
+
+
+@pytest.mark.parametrize("entrypoint", [
+    ("tox"),
+    ("'make test'")
+])
+def test_run_entrypoint(
+    mocker: MockerFixture,
+    mock_observer: MagicMock,
+    mock_emit_trigger: MagicMock,
+    mock_run_main_loop: MagicMock,
+    entrypoint: str
+):
+    args = ["ptw", ".", "--lf", "--nf", "--now", "--entrypoint", entrypoint]
+
+    mocker.patch.object(sys, "argv", args)
+
+    with pytest.raises(InterruptedError):
+        watcher.run()
+
+    mock_observer.assert_called_once_with()
+    observer_instance = mock_observer.return_value
+    observer_instance.schedule.assert_called_once()
+    observer_instance.start.assert_called_once()
+
+    mock_emit_trigger.assert_called_once_with()
+
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], entrypoint)
