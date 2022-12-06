@@ -5,7 +5,7 @@ import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Sequence, Tuple
+from typing import Sequence
 from dataclasses import dataclass
 
 from watchdog import events
@@ -13,6 +13,14 @@ from watchdog.observers import Observer
 
 trigger_lock = threading.Lock()
 trigger = None
+
+@dataclass
+class ParsedArguments:
+    path: Path
+    now: bool
+    delay: float
+    entrypoint: str
+    pytest_args: Sequence[str]
 
 
 def emit_trigger():
@@ -57,13 +65,9 @@ class EventHandler(events.FileSystemEventHandler):
 def _run_pytest(args) -> None:
     subprocess.run(["pytest", *args])
 
-@dataclass
-class ParsedArguments:
-    path: Path
-    now: bool
-    delay: float
-    entrypoint: str
-    pytest_args: Sequence[str]
+
+def _run_entrypoint(entrypoint, *args) -> None:
+    subprocess.run([entrypoint, *args])
 
 
 def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
@@ -102,12 +106,15 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     )
   
 
-def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
+def _run_main_loop(delay, pytest_args, entrypoint) -> None:
     global trigger
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        _run_pytest(pytest_args)
+        if not entrypoint:
+            _run_pytest(pytest_args)
+        else:
+            _run_entrypoint(entrypoint, pytest_args)
 
         with trigger_lock:
             trigger = None
@@ -116,12 +123,9 @@ def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
 
 
 def run():
-    arguments = _parse_arguments(sys.argv[1:])
-    path_to_watch = arguments.path
-    now = arguments.now
-    delay = arguments.delay
-    pytest_args = arguments.pytest_args
-    entrypoint = arguments.pytest_args
+    args = _parse_arguments(sys.argv[1:])
+    path_to_watch = args.path
+    now = args.now
 
     event_handler = EventHandler()
 
@@ -135,7 +139,7 @@ def run():
 
     try:
         while True:
-            _run_main_loop(delay, pytest_args)
+            _run_main_loop(args.delay, args.pytest_args, args.entrypoint)
     finally:
         observer.stop()
         observer.join()

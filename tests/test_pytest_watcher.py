@@ -8,6 +8,7 @@ from pytest_mock.plugin import MockerFixture
 from watchdog import events
 
 from pytest_watcher import __version__, watcher
+from pytest_watcher.watcher import ParsedArguments
 
 
 def test_version():
@@ -110,6 +111,7 @@ def test_emit_trigger():
         ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], None),
         ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], None),
         (["/home/", "--entrypoint", "tox"], "/home", False, 0.5, [], "tox"),
+        (["/home/", "--entrypoint", "make test"], "/home", False, 0.5, [], "make test"),
 
     ],
 )
@@ -130,7 +132,7 @@ def test_run_main_loop_no_trigger(
 ):
     watcher.trigger = None
 
-    watcher._run_main_loop(5, ["--lf"])
+    watcher._run_main_loop(5, ["--lf"], None)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(5)
@@ -145,7 +147,7 @@ def test_run_main_loop_trigger_fresh(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:04"):
-        watcher._run_main_loop(5, ["--lf"])
+        watcher._run_main_loop(5, ["--lf"], None)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(5)
@@ -160,7 +162,7 @@ def test_run_main_loop_trigger(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher._run_main_loop(5, ["--lf"])
+        watcher._run_main_loop(5, ["--lf"], None)
 
     mock_subprocess_run.assert_called_once_with(["pytest", "--lf"])
     mock_time_sleep.assert_called_once_with(5)
@@ -188,7 +190,7 @@ def test_run(
 
     mock_emit_trigger.assert_not_called()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"])
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
 
 
 def test_run_now(
@@ -211,4 +213,4 @@ def test_run_now(
 
     mock_emit_trigger.assert_called_once_with()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"])
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
