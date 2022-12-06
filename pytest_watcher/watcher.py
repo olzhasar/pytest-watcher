@@ -66,8 +66,8 @@ def _run_pytest(args) -> None:
     subprocess.run(["pytest", *args])
 
 
-def _run_entrypoint(entrypoint, *args) -> None:
-    subprocess.run([entrypoint, *args])
+def _run_entrypoint(entrypoint) -> None:
+    subprocess.run([entrypoint])
 
 
 def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
@@ -114,7 +114,7 @@ def _run_main_loop(delay, pytest_args, entrypoint) -> None:
         if not entrypoint:
             _run_pytest(pytest_args)
         else:
-            _run_entrypoint(entrypoint, pytest_args)
+            _run_entrypoint(entrypoint)
 
         with trigger_lock:
             trigger = None
@@ -124,6 +124,7 @@ def _run_main_loop(delay, pytest_args, entrypoint) -> None:
 
 def run():
     args = _parse_arguments(sys.argv[1:])
+    print(args)
     path_to_watch = args.path
     now = args.now
 

@@ -8,7 +8,6 @@ from pytest_mock.plugin import MockerFixture
 from watchdog import events
 
 from pytest_watcher import __version__, watcher
-from pytest_watcher.watcher import ParsedArguments
 
 
 def test_version():
