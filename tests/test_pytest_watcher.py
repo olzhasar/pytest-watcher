@@ -100,24 +100,27 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "pytest_args"),
+    ("sys_args", "path_to_watch", "now", "delay", "pytest_args", "entrypoint"),
     [
-        (["/home/"], "/home", False, 0.5, []),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"]),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"]),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"]),
-        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"]),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"]),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"]),
+        (["/home/"], "/home", False, 0.5, [], None),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], None),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], None),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], None),
+        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], None),
+        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], None),
+        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], None),
+        (["/home/", "--entrypoint", "tox"], "/home", False, 0.5, [], "tox"),
+
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args):
-    _path, _now, _delay, _pytest_args = watcher._parse_arguments(sys_args)
+def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args, entrypoint):
+    _arguments = watcher._parse_arguments(sys_args)
 
-    assert str(_path) == path_to_watch
-    assert _now == now
-    assert _delay == delay
-    assert _pytest_args == pytest_args
+    assert str(_arguments.path) == path_to_watch
+    assert _arguments.now == now
+    assert _arguments.delay == delay
+    assert _arguments.entrypoint == entrypoint
+    assert _arguments.pytest_args == pytest_args
 
 # fmt: on
 

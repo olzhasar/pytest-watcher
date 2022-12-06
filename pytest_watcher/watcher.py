@@ -6,6 +6,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Sequence, Tuple
+from dataclasses import dataclass
 
 from watchdog import events
 from watchdog.observers import Observer
@@ -56,8 +57,16 @@ class EventHandler(events.FileSystemEventHandler):
 def _run_pytest(args) -> None:
     subprocess.run(["pytest", *args])
 
+@dataclass
+class ParsedArguments:
+    path: Path
+    now: bool
+    delay: float
+    entrypoint: str
+    pytest_args: Sequence[str]
 
-def _parse_arguments(args: Sequence[str]) -> Tuple[Path, bool, float, Sequence[str]]:
+
+def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser = argparse.ArgumentParser(
         prog="pytest_watcher",
         description="""
@@ -74,11 +83,24 @@ def _parse_arguments(args: Sequence[str]) -> Tuple[Path, bool, float, Sequence[s
         default=0.5,
         help="Watcher delay in seconds (default 0.5)",
     )
+    parser.add_argument(
+        "--entrypoint",
+        type=str,
+        default=None,
+        help="Use another executable to run the tests.",
+    )
+
 
     namespace, pytest_args = parser.parse_known_args(args)
 
-    return namespace.path, namespace.now, namespace.delay, pytest_args
-
+    return ParsedArguments(
+        path=namespace.path,
+        now=namespace.now,
+        delay=namespace.delay,
+        entrypoint=namespace.entrypoint,
+        pytest_args=pytest_args
+    )
+  
 
 def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
     global trigger
@@ -94,7 +116,12 @@ def _run_main_loop(delay: float, pytest_args: Sequence[str]) -> None:
 
 
 def run():
-    path_to_watch, now, delay, pytest_args = _parse_arguments(sys.argv[1:])
+    arguments = _parse_arguments(sys.argv[1:])
+    path_to_watch = arguments.path
+    now = arguments.now
+    delay = arguments.delay
+    pytest_args = arguments.pytest_args
+    entrypoint = arguments.pytest_args
 
     event_handler = EventHandler()
 
