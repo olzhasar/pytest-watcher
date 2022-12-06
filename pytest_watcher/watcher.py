@@ -124,7 +124,6 @@ def _run_main_loop(delay, pytest_args, entrypoint) -> None:
 
 def run():
     args = _parse_arguments(sys.argv[1:])
-    print(args)
     path_to_watch = args.path
     now = args.now
 
