@@ -215,16 +215,13 @@ def test_run_now(
     mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
 
 
-@pytest.mark.parametrize("entrypoint", [
-    ("tox"),
-    ("'make test'")
-])
+@pytest.mark.parametrize("entrypoint", [("tox"), ("'make test'")])
 def test_run_entrypoint(
     mocker: MockerFixture,
     mock_observer: MagicMock,
     mock_emit_trigger: MagicMock,
     mock_run_main_loop: MagicMock,
-    entrypoint: str
+    entrypoint: str,
 ):
     args = ["ptw", ".", "--lf", "--nf", "--now", "--entrypoint", entrypoint]
 

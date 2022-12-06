@@ -14,6 +14,7 @@ from watchdog.observers import Observer
 trigger_lock = threading.Lock()
 trigger = None
 
+
 @dataclass
 class ParsedArguments:
     path: Path
@@ -94,7 +95,6 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         help="Use another executable to run the tests.",
     )
 
-
     namespace, pytest_args = parser.parse_known_args(args)
 
     return ParsedArguments(
@@ -102,9 +102,9 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         now=namespace.now,
         delay=namespace.delay,
         entrypoint=namespace.entrypoint,
-        pytest_args=pytest_args
+        pytest_args=pytest_args,
     )
-  
+
 
 def _run_main_loop(delay, pytest_args, entrypoint) -> None:
     global trigger
