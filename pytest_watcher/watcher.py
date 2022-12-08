@@ -98,7 +98,7 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         now=namespace.now,
         delay=namespace.delay,
         runner=namespace.runner,
-        pytest_args=list(pytest_args)
+        pytest_args=list(pytest_args),
     )
 
 
