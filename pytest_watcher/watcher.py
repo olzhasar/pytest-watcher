@@ -102,7 +102,7 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     )
 
 
-def _run_main_loop(delay, pytest_args, runner) -> None:
+def _run_main_loop(delay, runner, pytest_args) -> None:
     global trigger
 
     now = datetime.now()
@@ -117,22 +117,20 @@ def _run_main_loop(delay, pytest_args, runner) -> None:
 
 def run():
     args = _parse_arguments(sys.argv[1:])
-    path_to_watch = args.path
-    now = args.now
 
     event_handler = EventHandler()
 
     observer = Observer()
 
-    observer.schedule(event_handler, path_to_watch, recursive=True)
+    observer.schedule(event_handler, args.path, recursive=True)
     observer.start()
 
-    if now:
+    if args.now:
         emit_trigger()
 
     try:
         while True:
-            _run_main_loop(args.delay, args.pytest_args, args.runner)
+            _run_main_loop(args.delay, args.runner, args.pytest_args)
     finally:
         observer.stop()
         observer.join()

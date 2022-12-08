@@ -161,7 +161,7 @@ def test_run_main_loop_trigger(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher._run_main_loop(5, ["--lf"], "pytest")
+        watcher._run_main_loop(5, "pytest", ["--lf"])
 
     mock_subprocess_run.assert_called_once_with(["pytest", "--lf"])
     mock_time_sleep.assert_called_once_with(5)
@@ -189,7 +189,7 @@ def test_run(
 
     mock_emit_trigger.assert_not_called()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], "pytest")
+    mock_run_main_loop.assert_called_once_with(0.5, "pytest", ["--lf", "--nf"])
 
 
 def test_run_now(
@@ -212,7 +212,7 @@ def test_run_now(
 
     mock_emit_trigger.assert_called_once_with()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], "pytest")
+    mock_run_main_loop.assert_called_once_with(0.5, "pytest", ["--lf", "--nf"])
 
 
 @pytest.mark.parametrize("runner", [("tox"), ("'make test'")])
@@ -237,4 +237,4 @@ def test_run_runner(
 
     mock_emit_trigger.assert_called_once_with()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], runner)
+    mock_run_main_loop.assert_called_once_with(0.5, runner, ["--lf", "--nf"])
