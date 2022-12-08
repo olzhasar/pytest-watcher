@@ -100,7 +100,7 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "pytest_args", "runner"),
+    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner"),
     [
         (["/home/"], "/home", False, 0.5, [], "pytest"),
         (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
@@ -114,14 +114,14 @@ def test_emit_trigger():
         (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make"),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args, runner):
+def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner):
     _arguments = watcher._parse_arguments(sys_args)
 
     assert str(_arguments.path) == path_to_watch
     assert _arguments.now == now
     assert _arguments.delay == delay
     assert _arguments.runner == runner
-    assert _arguments.pytest_args == pytest_args
+    assert _arguments.runner_args == runner_args
 
 # fmt: on
 

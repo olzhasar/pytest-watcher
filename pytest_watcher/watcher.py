@@ -21,7 +21,7 @@ class ParsedArguments:
     now: bool
     delay: float
     runner: str
-    pytest_args: Sequence[str]
+    runner_args: Sequence[str]
 
 
 def emit_trigger():
@@ -91,23 +91,23 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         help="Use another executable to run the tests.",
     )
 
-    namespace, pytest_args = parser.parse_known_args(args)
+    namespace, runner_args = parser.parse_known_args(args)
 
     return ParsedArguments(
         path=namespace.path,
         now=namespace.now,
         delay=namespace.delay,
         runner=namespace.runner,
-        pytest_args=pytest_args,
+        runner_args=runner_args,
     )
 
 
-def _run_main_loop(delay: float, runner: str, pytest_args: Sequence[str]) -> None:
+def _run_main_loop(delay: float, runner: str, runner_args: Sequence[str]) -> None:
     global trigger
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        _run_runner(runner, pytest_args)
+        _run_runner(runner, runner_args)
 
         with trigger_lock:
             trigger = None
@@ -130,7 +130,7 @@ def run():
 
     try:
         while True:
-            _run_main_loop(args.delay, args.runner, args.pytest_args)
+            _run_main_loop(args.delay, args.runner, args.runner_args)
     finally:
         observer.stop()
         observer.join()
