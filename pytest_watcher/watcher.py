@@ -20,7 +20,7 @@ class ParsedArguments:
     path: Path
     now: bool
     delay: float
-    entrypoint: str
+    runner: str
     pytest_args: Sequence[str]
 
 
@@ -63,8 +63,8 @@ class EventHandler(events.FileSystemEventHandler):
             emit_trigger()
 
 
-def _run_entrypoint(entrypoint, args) -> None:
-    subprocess.run([entrypoint, *args])
+def _run_runner(runner, args) -> None:
+    subprocess.run([runner, *args])
 
 
 def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
@@ -85,7 +85,7 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         help="Watcher delay in seconds (default 0.5)",
     )
     parser.add_argument(
-        "--entrypoint",
+        "--runner",
         type=str,
         default="pytest",
         help="Use another executable to run the tests.",
@@ -97,17 +97,17 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         path=namespace.path,
         now=namespace.now,
         delay=namespace.delay,
-        entrypoint=namespace.entrypoint,
+        runner=namespace.runner,
         pytest_args=list(pytest_args)
     )
 
 
-def _run_main_loop(delay, pytest_args, entrypoint) -> None:
+def _run_main_loop(delay, pytest_args, runner) -> None:
     global trigger
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        _run_entrypoint(entrypoint, pytest_args)
+        _run_runner(runner, pytest_args)
 
         with trigger_lock:
             trigger = None
@@ -132,7 +132,7 @@ def run():
 
     try:
         while True:
-            _run_main_loop(args.delay, args.pytest_args, args.entrypoint)
+            _run_main_loop(args.delay, args.pytest_args, args.runner)
     finally:
         observer.stop()
         observer.join()

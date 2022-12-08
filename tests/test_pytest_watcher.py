@@ -100,7 +100,7 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "pytest_args", "entrypoint"),
+    ("sys_args", "path_to_watch", "now", "delay", "pytest_args", "runner"),
     [
         (["/home/"], "/home", False, 0.5, [], "pytest"),
         (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
@@ -109,18 +109,18 @@ def test_emit_trigger():
         ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
         ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest"),
         ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--entrypoint", "tox"], "/home", False, 0.5, [], "tox"),
-        (["/home/", "--entrypoint", "'make test'"], "/home", False, 0.5, [], "'make test'"),
-        (["/home/", "--entrypoint", "make", "test"], "/home", False, 0.5, ["test"], "make"),
+        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox"),
+        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'"),
+        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make"),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args, entrypoint):
+def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args, runner):
     _arguments = watcher._parse_arguments(sys_args)
 
     assert str(_arguments.path) == path_to_watch
     assert _arguments.now == now
     assert _arguments.delay == delay
-    assert _arguments.entrypoint == entrypoint
+    assert _arguments.runner == runner
     assert _arguments.pytest_args == pytest_args
 
 # fmt: on
@@ -215,15 +215,15 @@ def test_run_now(
     mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], "pytest")
 
 
-@pytest.mark.parametrize("entrypoint", [("tox"), ("'make test'")])
-def test_run_entrypoint(
+@pytest.mark.parametrize("runner", [("tox"), ("'make test'")])
+def test_run_runner(
     mocker: MockerFixture,
     mock_observer: MagicMock,
     mock_emit_trigger: MagicMock,
     mock_run_main_loop: MagicMock,
-    entrypoint: str,
+    runner: str,
 ):
-    args = ["ptw", ".", "--lf", "--nf", "--now", "--entrypoint", entrypoint]
+    args = ["ptw", ".", "--lf", "--nf", "--now", "--runner", runner]
 
     mocker.patch.object(sys, "argv", args)
 
@@ -237,4 +237,4 @@ def test_run_entrypoint(
 
     mock_emit_trigger.assert_called_once_with()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], entrypoint)
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], runner)
