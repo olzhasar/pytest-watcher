@@ -110,8 +110,8 @@ def test_emit_trigger():
         ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest"),
         ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest"),
         (["/home/", "--entrypoint", "tox"], "/home", False, 0.5, [], "tox"),
-        (["/home/", "--entrypoint", "make test"], "/home", False, 0.5, [], "make test"),
-
+        (["/home/", "--entrypoint", "'make test'"], "/home", False, 0.5, [], "'make test'"),
+        (["/home/", "--entrypoint", "make", "test"], "/home", False, 0.5, ["test"], "make"),
     ],
 )
 def test_parse_arguments(sys_args, path_to_watch, now, delay, pytest_args, entrypoint):

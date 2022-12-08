@@ -63,9 +63,7 @@ class EventHandler(events.FileSystemEventHandler):
             emit_trigger()
 
 
-def _run_entrypoint(entrypoint, *args) -> None:
-    print("args", args)
-    print("*args", *args)
+def _run_entrypoint(entrypoint, args) -> None:
     subprocess.run([entrypoint, *args])
 
 
@@ -95,7 +93,6 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
 
     namespace, pytest_args = parser.parse_known_args(args)
 
-    print(type(pytest_args))
     return ParsedArguments(
         path=namespace.path,
         now=namespace.now,
@@ -122,8 +119,6 @@ def run():
     args = _parse_arguments(sys.argv[1:])
     path_to_watch = args.path
     now = args.now
-
-    print(args.pytest_args)
 
     event_handler = EventHandler()
 
