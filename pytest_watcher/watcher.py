@@ -63,7 +63,7 @@ class EventHandler(events.FileSystemEventHandler):
             emit_trigger()
 
 
-def _run_runner(runner, args) -> None:
+def _run_runner(runner: str, args: Sequence[str]) -> None:
     subprocess.run([runner, *args])
 
 
@@ -98,11 +98,11 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         now=namespace.now,
         delay=namespace.delay,
         runner=namespace.runner,
-        pytest_args=list(pytest_args),
+        pytest_args=pytest_args,
     )
 
 
-def _run_main_loop(delay, runner, pytest_args) -> None:
+def _run_main_loop(delay: float, runner: str, pytest_args: Sequence[str]) -> None:
     global trigger
 
     now = datetime.now()
