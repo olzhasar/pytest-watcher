@@ -102,13 +102,13 @@ def test_emit_trigger():
 @pytest.mark.parametrize(
     ("sys_args", "path_to_watch", "now", "delay", "pytest_args", "entrypoint"),
     [
-        (["/home/"], "/home", False, 0.5, [], None),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], None),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], None),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], None),
-        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], None),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], None),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], None),
+        (["/home/"], "/home", False, 0.5, [], "pytest"),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
+        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
+        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest"),
+        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest"),
         (["/home/", "--entrypoint", "tox"], "/home", False, 0.5, [], "tox"),
         (["/home/", "--entrypoint", "make test"], "/home", False, 0.5, [], "make test"),
 
@@ -146,7 +146,7 @@ def test_run_main_loop_trigger_fresh(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:04"):
-        watcher._run_main_loop(5, ["--lf"], None)
+        watcher._run_main_loop(5, ["--lf"], "pytest")
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(5)
@@ -161,7 +161,7 @@ def test_run_main_loop_trigger(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher._run_main_loop(5, ["--lf"], None)
+        watcher._run_main_loop(5, ["--lf"], "pytest")
 
     mock_subprocess_run.assert_called_once_with(["pytest", "--lf"])
     mock_time_sleep.assert_called_once_with(5)
@@ -189,7 +189,7 @@ def test_run(
 
     mock_emit_trigger.assert_not_called()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], "pytest")
 
 
 def test_run_now(
@@ -212,7 +212,7 @@ def test_run_now(
 
     mock_emit_trigger.assert_called_once_with()
 
-    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], None)
+    mock_run_main_loop.assert_called_once_with(0.5, ["--lf", "--nf"], "pytest")
 
 
 @pytest.mark.parametrize("entrypoint", [("tox"), ("'make test'")])

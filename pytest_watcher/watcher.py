@@ -63,12 +63,10 @@ class EventHandler(events.FileSystemEventHandler):
             emit_trigger()
 
 
-def _run_pytest(args) -> None:
-    subprocess.run(["pytest", *args])
-
-
-def _run_entrypoint(entrypoint) -> None:
-    subprocess.run([entrypoint])
+def _run_entrypoint(entrypoint, *args) -> None:
+    print("args", args)
+    print("*args", *args)
+    subprocess.run([entrypoint, *args])
 
 
 def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
@@ -91,18 +89,19 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser.add_argument(
         "--entrypoint",
         type=str,
-        default=None,
+        default="pytest",
         help="Use another executable to run the tests.",
     )
 
     namespace, pytest_args = parser.parse_known_args(args)
 
+    print(type(pytest_args))
     return ParsedArguments(
         path=namespace.path,
         now=namespace.now,
         delay=namespace.delay,
         entrypoint=namespace.entrypoint,
-        pytest_args=pytest_args,
+        pytest_args=list(pytest_args)
     )
 
 
@@ -111,10 +110,7 @@ def _run_main_loop(delay, pytest_args, entrypoint) -> None:
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        if not entrypoint:
-            _run_pytest(pytest_args)
-        else:
-            _run_entrypoint(entrypoint)
+        _run_entrypoint(entrypoint, pytest_args)
 
         with trigger_lock:
             trigger = None
@@ -126,6 +122,8 @@ def run():
     args = _parse_arguments(sys.argv[1:])
     path_to_watch = args.path
     now = args.now
+
+    print(args.pytest_args)
 
     event_handler = EventHandler()
 
