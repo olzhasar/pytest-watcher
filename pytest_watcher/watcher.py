@@ -3,10 +3,10 @@ import subprocess
 import sys
 import threading
 import time
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Sequence
-from dataclasses import dataclass
 
 from watchdog import events
 from watchdog.observers import Observer
@@ -102,7 +102,7 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     )
 
 
-def _run_main_loop(delay: float, runner: str, runner_args: Sequence[str]) -> None:
+def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
     global trigger
 
     now = datetime.now()
@@ -130,7 +130,9 @@ def run():
 
     try:
         while True:
-            _run_main_loop(args.delay, args.runner, args.runner_args)
+            _run_main_loop(
+                runner=args.runner, runner_args=args.runner_args, delay=args.delay
+            )
     finally:
         observer.stop()
         observer.join()
