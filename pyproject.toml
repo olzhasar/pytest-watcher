@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-watcher"
-version = "0.2.5"
+version = "0.2.6"
 description = "Continiously runs pytest on changes in *.py files"
 authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
 license = "MIT"
@@ -26,7 +26,7 @@ pytest-watcher = "pytest_watcher:run"
 ptw = "pytest_watcher:run"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<4.0.0"
+python = ">=3.7.0,<4.0.0"
 watchdog = ">=2.0.0"
 
 [tool.poetry.dev-dependencies]

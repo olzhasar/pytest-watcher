@@ -11,7 +11,7 @@ from pytest_watcher import __version__, watcher
 
 
 def test_version():
-    assert __version__ == "0.2.5"
+    assert __version__ == "0.2.6"
 
 
 @pytest.fixture(autouse=True)

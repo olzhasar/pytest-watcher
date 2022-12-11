@@ -1,3 +1,13 @@
+## [0.2.6] - 2022-12-11
+
+### Features
+
+- New `--runner` flag for specifying alternative runner command (e.g. `tox`, `make`, etc.)
+
+### Changes
+
+- Drop support for Python 3.6
+
 ## [0.2.5] - 2022-10-30
 
 ### Features
