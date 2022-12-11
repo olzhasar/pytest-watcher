@@ -220,7 +220,7 @@ def test_run_now(
 
 
 @pytest.mark.parametrize("runner", [("tox"), ("'make test'")])
-def test_run_runner(
+def test_invoke_runner(
     mocker: MockerFixture,
     mock_observer: MagicMock,
     mock_emit_trigger: MagicMock,

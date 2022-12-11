@@ -63,7 +63,7 @@ class EventHandler(events.FileSystemEventHandler):
             emit_trigger()
 
 
-def _run_runner(runner: str, args: Sequence[str]) -> None:
+def _invoke_runner(runner: str, args: Sequence[str]) -> None:
     subprocess.run([runner, *args])
 
 
@@ -107,7 +107,7 @@ def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> 
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        _run_runner(runner, runner_args)
+        _invoke_runner(runner, runner_args)
 
         with trigger_lock:
             trigger = None
