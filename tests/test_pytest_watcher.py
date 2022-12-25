@@ -54,12 +54,12 @@ def _release_trigger():
             "/home/project/pytest.yaml",
             FileFilter(include=["*.yaml"], ignore=["./pytest*"]),
             True,
-        ),  # Can be contrintuitive -> next line correct ignore
+        ),
         (
             "/home/project/pytest.yaml",
             FileFilter(include=["*.yaml"], ignore=["*pytest*"]),
             False,
-        ),  # Can be contrintuitive
+        ),
     ],
 )
 def test_file_filter(filepath, file_filter, expected):
