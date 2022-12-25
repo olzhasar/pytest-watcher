@@ -9,6 +9,8 @@ from watchdog import events
 
 from pytest_watcher import __version__, watcher
 
+FileFilter = watcher.FileFilter
+
 
 def test_version():
     assert __version__ == "0.2.6"
@@ -23,17 +25,45 @@ def _release_trigger():
 
 
 @pytest.mark.parametrize(
-    ("filepath", "expected"),
+    ("filepath", "file_filter", "expected"),
     [
-        ("test.py", True),
-        ("./test.py", True),
-        ("/home/project/test.py", True),
-        ("test.pyc", False),
-        ("image.jpg", False),
+        ("test.py", FileFilter(include=["*.py"]), True),
+        ("test.py", FileFilter(), False),
+        ("./test.py", FileFilter(include=["*.py"]), True),
+        ("/home/project/test.py", FileFilter(include=["*.py"]), True),
+        ("test.pyc", FileFilter(include=["*.py"]), False),
+        ("image.jpg", FileFilter(include=["*.py"]), False),
+        ("pytest.ini", FileFilter(include=["*.py", "*.ini"]), True),
+        ("/home/project/pytest.ini", FileFilter(include=["*.py", "*.ini"]), True),
+        (
+            "ignore/templates/myfile.py",
+            FileFilter(include=["*.py"], ignore=["ignore/templates/*"]),
+            False,
+        ),
+        (
+            "ignore/templates/myfile.py",
+            FileFilter(include=["*.py"], ignore=["ignore/templates/*.py"]),
+            False,
+        ),
+        (
+            "ignore/templates/myfile.py",
+            FileFilter(include=["*.py"], ignore=["ignore/**"]),
+            False,
+        ),
+        (
+            "/home/project/pytest.yaml",
+            FileFilter(include=["*.yaml"], ignore=["./pytest*"]),
+            True,
+        ),  # Can be contrintuitive -> next line correct ignore
+        (
+            "/home/project/pytest.yaml",
+            FileFilter(include=["*.yaml"], ignore=["*pytest*"]),
+            False,
+        ),  # Can be contrintuitive
     ],
 )
-def test_is_path_watched(filepath, expected):
-    assert watcher._is_path_watched(filepath) == expected
+def test_file_filter(filepath, file_filter, expected):
+    assert file_filter.is_filtered(filepath) == expected
 
 
 class TestEventHandler:
@@ -100,27 +130,31 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner"),
+    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "include_filter", "ignore_filter"),
     [
-        (["/home/"], "/home", False, 0.5, [], "pytest"),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox"),
-        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'"),
-        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make"),
+        (["/home/"], "/home", False, 0.5, [], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox", ['*.py'], []),
+        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'", ['*.py'], []),
+        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make", ['*.py'], []),
+        (["/home/", "--include-filter", "*.py,*.env"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], []),
+        (["/home/", "--include-filter=*.py,*.env", "--ignore-filter", "long-long-long-path,templates/*.py"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner):
+def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, include_filter, ignore_filter):
     _arguments = watcher._parse_arguments(sys_args)
 
     assert str(_arguments.path) == path_to_watch
     assert _arguments.now == now
     assert _arguments.delay == delay
     assert _arguments.runner == runner
+    assert _arguments.include_filter == include_filter
+    assert _arguments.ignore_filter == ignore_filter
     assert _arguments.runner_args == runner_args
 
 # fmt: on
