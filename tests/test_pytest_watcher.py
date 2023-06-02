@@ -130,7 +130,7 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "include_filter", "ignore_filter"),
+    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "patterns", "ignore_patterns"),
     [
         (["/home/"], "/home", False, 0.5, [], "pytest", ['*.py'], []),
         (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
@@ -142,19 +142,19 @@ def test_emit_trigger():
         (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox", ['*.py'], []),
         (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'", ['*.py'], []),
         (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make", ['*.py'], []),
-        (["/home/", "--include-filter", "*.py,*.env"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], []),
-        (["/home/", "--include-filter=*.py,*.env", "--ignore-filter", "long-long-long-path,templates/*.py"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
+        (["/home/", "--patterns", "*.py,*.env"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], []),
+        (["/home/", "--patterns=*.py,*.env", "--ignore-patterns", "long-long-long-path,templates/*.py"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, include_filter, ignore_filter):
+def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, patterns, ignore_patterns):
     _arguments = watcher._parse_arguments(sys_args)
 
     assert str(_arguments.path) == path_to_watch
     assert _arguments.now == now
     assert _arguments.delay == delay
     assert _arguments.runner == runner
-    assert _arguments.include_filter == include_filter
-    assert _arguments.ignore_filter == ignore_filter
+    assert _arguments.patterns == patterns
+    assert _arguments.ignore_patterns == ignore_patterns
     assert _arguments.runner_args == runner_args
 
 # fmt: on

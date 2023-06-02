@@ -26,8 +26,8 @@ class ParsedArguments:
     now: bool
     delay: float
     runner: str
-    include_filter: str
-    ignore_filter: str
+    patterns: str
+    ignore_patterns: str
     runner_args: Sequence[str]
 
 
@@ -131,13 +131,13 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         help="Use another executable to run the tests.",
     )
     parser.add_argument(
-        "--include-filter",
+        "--patterns",
         default=["*.py"],
         type=lambda f: f.split(","),
         help="Comma-separated Unix shell-style wildcard include list (default: '*.py')",
     )
     parser.add_argument(
-        "--ignore-filter",
+        "--ignore-patterns",
         default=[],
         type=lambda f: f.split(","),
         help="Comma-separated Unix shell-style wildcard ignore list (default: '')",
@@ -150,8 +150,8 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
         now=namespace.now,
         delay=namespace.delay,
         runner=namespace.runner,
-        include_filter=namespace.include_filter,
-        ignore_filter=namespace.ignore_filter,
+        patterns=namespace.patterns,
+        ignore_patterns=namespace.ignore_patterns,
         runner_args=runner_args,
     )
 
@@ -172,7 +172,7 @@ def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> 
 def run():
     args = _parse_arguments(sys.argv[1:])
 
-    file_filter = FileFilter(include=args.include_filter, ignore=args.ignore_filter)
+    file_filter = FileFilter(include=args.patterns, ignore=args.ignore_patterns)
     event_handler = EventHandler(file_filter)
 
     observer = Observer()
