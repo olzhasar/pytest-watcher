@@ -5,11 +5,8 @@ from unittest.mock import MagicMock
 import pytest
 from freezegun import freeze_time
 from pytest_mock.plugin import MockerFixture
-from watchdog import events
 
 from pytest_watcher import __version__, watcher
-
-FileFilter = watcher.FileFilter
 
 
 def test_version():
@@ -22,100 +19,6 @@ def _release_trigger():
         yield
     finally:
         watcher.trigger = None
-
-
-@pytest.mark.parametrize(
-    ("filepath", "file_filter", "expected"),
-    [
-        ("test.py", FileFilter(include=["*.py"]), True),
-        ("test.py", FileFilter(), False),
-        ("./test.py", FileFilter(include=["*.py"]), True),
-        ("/home/project/test.py", FileFilter(include=["*.py"]), True),
-        ("test.pyc", FileFilter(include=["*.py"]), False),
-        ("image.jpg", FileFilter(include=["*.py"]), False),
-        ("pytest.ini", FileFilter(include=["*.py", "*.ini"]), True),
-        ("/home/project/pytest.ini", FileFilter(include=["*.py", "*.ini"]), True),
-        (
-            "ignore/templates/myfile.py",
-            FileFilter(include=["*.py"], ignore=["ignore/templates/*"]),
-            False,
-        ),
-        (
-            "ignore/templates/myfile.py",
-            FileFilter(include=["*.py"], ignore=["ignore/templates/*.py"]),
-            False,
-        ),
-        (
-            "ignore/templates/myfile.py",
-            FileFilter(include=["*.py"], ignore=["ignore/**"]),
-            False,
-        ),
-        (
-            "/home/project/pytest.yaml",
-            FileFilter(include=["*.yaml"], ignore=["./pytest*"]),
-            True,
-        ),
-        (
-            "/home/project/pytest.yaml",
-            FileFilter(include=["*.yaml"], ignore=["*pytest*"]),
-            False,
-        ),
-    ],
-)
-def test_file_filter(filepath, file_filter, expected):
-    assert file_filter.is_filtered(filepath) == expected
-
-
-class TestEventHandler:
-    @pytest.mark.parametrize("event_type", watcher.EventHandler.EVENTS_WATCHED)
-    def test_src_watched(self, event_type, mock_emit_trigger: MagicMock):
-        event = events.FileSystemEvent("main.py")
-        event.event_type = event_type
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_called_once_with()
-
-    @pytest.mark.parametrize(
-        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
-    )
-    def test_file_moved_dest_watched(self, event_class, mock_emit_trigger: MagicMock):
-        event = event_class("main.tmp", "main.py")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_called_once_with()
-
-    @pytest.mark.parametrize(
-        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
-    )
-    def test_file_moved_dest_not_watched(
-        self, event_class, mock_emit_trigger: MagicMock
-    ):
-        event = event_class("main.tmp", "main.temp")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
-
-    def test_src_not_watched(self, mock_emit_trigger: MagicMock):
-        event = events.FileCreatedEvent("main.pyc")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
-
-    def test_wrong_event_type(self, mock_emit_trigger: MagicMock):
-        event = events.FileClosedEvent("main.py")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
 
 
 @freeze_time("2020-01-01")

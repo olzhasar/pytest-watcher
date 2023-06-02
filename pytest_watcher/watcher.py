@@ -1,5 +1,4 @@
 import argparse
-import fnmatch
 import logging
 import subprocess
 import sys
@@ -8,10 +7,11 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import List, Sequence
 
 from watchdog import events
 from watchdog.observers import Observer
+from watchdog.utils.patterns import match_any_paths
 
 trigger_lock = threading.Lock()
 trigger = None
@@ -42,76 +42,58 @@ def emit_trigger():
         trigger = datetime.now()
 
 
-class FileFilter:
-    def __init__(
-        self, *, include: Optional[list[str]] = None, ignore: Optional[list[str]] = None
-    ):
-        self._include = include or []
-        self._ignore = ignore or []
-
-    def is_filtered(self, filepath: str) -> bool:
-        """
-        Check if file passes filters.
-        """
-        for ignore_item in self._ignore:
-            ignore_result = fnmatch.fnmatch(filepath, ignore_item)
-            logger.debug(
-                "[filter] File: `%s` rule `%s` -> ignored: %s",
-                filepath,
-                ignore_item,
-                ignore_result,
-            )
-            if ignore_result:
-                return False
-
-        for include_item in self._include:
-            include_result = fnmatch.fnmatch(filepath, include_item)
-            logger.debug(
-                "[filter] File: `%s` rule `%s` -> included: %s",
-                filepath,
-                include_item,
-                include_result,
-            )
-            if include_result:
-                return True
-
-        logger.debug("[filter] File: `%s` no rule -> ignored: True", filepath)
-        return False
-
-
-class EventHandler(events.FileSystemEventHandler):
-    EVENTS_WATCHED = (
+class EventHandler:
+    EVENTS_WATCHED = {
         events.EVENT_TYPE_CREATED,
         events.EVENT_TYPE_DELETED,
         events.EVENT_TYPE_MODIFIED,
         events.EVENT_TYPE_MOVED,
-    )
+    }
 
-    def __init__(self, file_filter: Optional[FileFilter] = None):
-        self._file_filter = file_filter or FileFilter(include=["*.py"])
+    def __init__(self, patterns: List[str] = None, ignore_patterns: List[str] = None):
+        self._patterns = patterns or ["*.py"]
+        self._ignore_patterns = ignore_patterns or []
+
+    @property
+    def patterns(self) -> List[str]:
+        return self._patterns
+
+    @property
+    def ignore_patterns(self) -> List[str]:
+        return self._ignore_patterns
+
+    def _is_event_watched(self, event: events.FileSystemEvent) -> bool:
+        if event.event_type not in self.EVENTS_WATCHED:
+            return False
+
+        paths = [event.src_path]
+        if hasattr(event, "dest_path"):
+            # For file moved type events we are also interested in the destination
+            paths.append(event.dest_path)
+
+        return match_any_paths(paths, self.patterns, self.ignore_patterns)
 
     def dispatch(self, event: events.FileSystemEvent) -> None:
-        if event.event_type in self.EVENTS_WATCHED:
-            self.process_event(event)
-
-    def process_event(self, event: events.FileSystemEvent) -> None:
-        if self._file_filter.is_filtered(event.src_path):
+        if self._is_event_watched(event):
             emit_trigger()
-        elif isinstance(
-            event, events.FileSystemMovedEvent
-        ) and self._file_filter.is_filtered(event.dest_path):
-            emit_trigger()
+            logger.debug(f"TRIGGERED event: {event.event_type} src: {event.src_path}")
+        else:
+            logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
 
 
 def _invoke_runner(runner: str, args: Sequence[str]) -> None:
     subprocess.run([runner, *args])
 
 
+def _parse_patterns(arg: str):
+    return arg.split(",")
+
+
 def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser = argparse.ArgumentParser(
         prog="pytest_watcher",
         description="""
-            Watch <path> for changes in Python projects and run pytest
+            Watch <path> for file changes in Python projects and run pytest
             if such change is detected.\n
             Any additional arguments will be passed to pytest directly
         """,
@@ -133,14 +115,14 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser.add_argument(
         "--patterns",
         default=["*.py"],
-        type=lambda f: f.split(","),
-        help="Comma-separated Unix shell-style wildcard include list (default: '*.py')",
+        type=_parse_patterns,
+        help="Comma-separated Unix shell-style wildcard patterns list (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
         default=[],
-        type=lambda f: f.split(","),
-        help="Comma-separated Unix shell-style wildcard ignore list (default: '')",
+        type=_parse_patterns,
+        help="Comma-separated Unix shell-style wildcard ignore patterns list (default: '')",
     )
 
     namespace, runner_args = parser.parse_known_args(args)
@@ -172,8 +154,9 @@ def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> 
 def run():
     args = _parse_arguments(sys.argv[1:])
 
-    file_filter = FileFilter(include=args.patterns, ignore=args.ignore_patterns)
-    event_handler = EventHandler(file_filter)
+    event_handler = EventHandler(
+        patterns=args.patterns, ignore_patterns=args.ignore_patterns
+    )
 
     observer = Observer()
 
