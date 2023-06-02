@@ -29,7 +29,7 @@ Works on Unix (Linux, MacOS, BSD) and Windows.
 - Easy to use and remember
 - Works for most python projects out of the box
 - Minimum dependencies (`watchdog` is the only one)
-- Handles post-processing properly (see delay)
+- Handles post-processing properly (see [delay](#delay))
 
 ### What about pytest-watch?
 
