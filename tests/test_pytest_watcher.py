@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 import pytest
 from freezegun import freeze_time
 from pytest_mock.plugin import MockerFixture
-from watchdog import events
 
 from pytest_watcher import __version__, watcher
 
@@ -22,72 +21,6 @@ def _release_trigger():
         watcher.trigger = None
 
 
-@pytest.mark.parametrize(
-    ("filepath", "expected"),
-    [
-        ("test.py", True),
-        ("./test.py", True),
-        ("/home/project/test.py", True),
-        ("test.pyc", False),
-        ("image.jpg", False),
-    ],
-)
-def test_is_path_watched(filepath, expected):
-    assert watcher._is_path_watched(filepath) == expected
-
-
-class TestEventHandler:
-    @pytest.mark.parametrize("event_type", watcher.EventHandler.EVENTS_WATCHED)
-    def test_src_watched(self, event_type, mock_emit_trigger: MagicMock):
-        event = events.FileSystemEvent("main.py")
-        event.event_type = event_type
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_called_once_with()
-
-    @pytest.mark.parametrize(
-        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
-    )
-    def test_file_moved_dest_watched(self, event_class, mock_emit_trigger: MagicMock):
-        event = event_class("main.tmp", "main.py")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_called_once_with()
-
-    @pytest.mark.parametrize(
-        "event_class", [events.FileSystemMovedEvent, events.FileMovedEvent]
-    )
-    def test_file_moved_dest_not_watched(
-        self, event_class, mock_emit_trigger: MagicMock
-    ):
-        event = event_class("main.tmp", "main.temp")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
-
-    def test_src_not_watched(self, mock_emit_trigger: MagicMock):
-        event = events.FileCreatedEvent("main.pyc")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
-
-    def test_wrong_event_type(self, mock_emit_trigger: MagicMock):
-        event = events.FileClosedEvent("main.py")
-
-        handler = watcher.EventHandler()
-        handler.dispatch(event)
-
-        mock_emit_trigger.assert_not_called()
-
-
 @freeze_time("2020-01-01")
 def test_emit_trigger():
     assert watcher.trigger is None
@@ -100,27 +33,31 @@ def test_emit_trigger():
 # fmt: off
 
 @pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner"),
+    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "patterns", "ignore_patterns"),
     [
-        (["/home/"], "/home", False, 0.5, [], "pytest"),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest"),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest"),
-        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox"),
-        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'"),
-        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make"),
+        (["/home/"], "/home", False, 0.5, [], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox", ['*.py'], []),
+        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'", ['*.py'], []),
+        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make", ['*.py'], []),
+        (["/home/", "--patterns", "*.py,*.env"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], []),
+        (["/home/", "--patterns=*.py,*.env", "--ignore-patterns", "long-long-long-path,templates/*.py"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
     ],
 )
-def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner):
+def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, patterns, ignore_patterns):
     _arguments = watcher._parse_arguments(sys_args)
 
     assert str(_arguments.path) == path_to_watch
     assert _arguments.now == now
     assert _arguments.delay == delay
     assert _arguments.runner == runner
+    assert _arguments.patterns == patterns
+    assert _arguments.ignore_patterns == ignore_patterns
     assert _arguments.runner_args == runner_args
 
 # fmt: on
