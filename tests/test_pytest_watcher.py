@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from pytest_mock.plugin import MockerFixture
 
 from pytest_watcher import __version__, watcher
+from pytest_watcher.watcher import DEFAULT_DELAY
 
 
 def test_version():
@@ -35,18 +36,18 @@ def test_emit_trigger():
 @pytest.mark.parametrize(
     ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "patterns", "ignore_patterns"),
     [
-        (["/home/"], "/home", False, 0.5, [], "pytest", ['*.py'], []),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        ([".", "--lf", "--nf", "-x"], ".", False, 0.5, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        ([".", "--delay=0.2", "--lf", "--nf", "-x"], ".", False, 0.2, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--nf", "-x"], "/home", False, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--lf", "--nf", "-x"], ".", False, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
+        ([".", "--delay=0.8", "--lf", "--nf", "-x"], ".", False, 0.8, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
         ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--runner", "tox"], "/home", False, 0.5, [], "tox", ['*.py'], []),
-        (["/home/", "--runner", "'make test'"], "/home", False, 0.5, [], "'make test'", ['*.py'], []),
-        (["/home/", "--runner", "make", "test"], "/home", False, 0.5, ["test"], "make", ['*.py'], []),
-        (["/home/", "--patterns", "*.py,*.env"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], []),
-        (["/home/", "--patterns=*.py,*.env", "--ignore-patterns", "long-long-long-path,templates/*.py"], "/home", False, 0.5, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
+        (["/home/", "--runner", "tox"], "/home", False, DEFAULT_DELAY, [], "tox", ['*.py'], []),
+        (["/home/", "--runner", "'make test'"], "/home", False, DEFAULT_DELAY, [], "'make test'", ['*.py'], []),
+        (["/home/", "--runner", "make", "test"], "/home", False, DEFAULT_DELAY, ["test"], "make", ['*.py'], []),
+        (["/home/", "--patterns", "*.py,*.env"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py', '*.env'], []),
+        (["/home/", "--patterns=*.py,*.env", "--ignore-patterns", "long-long-long-path,templates/*.py"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
     ],
 )
 def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, patterns, ignore_patterns):
@@ -127,7 +128,7 @@ def test_run(
     mock_emit_trigger.assert_not_called()
 
     mock_run_main_loop.assert_called_once_with(
-        runner="pytest", runner_args=["--lf", "--nf"], delay=0.5
+        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
     )
 
 
@@ -152,7 +153,7 @@ def test_run_now(
     mock_emit_trigger.assert_called_once_with()
 
     mock_run_main_loop.assert_called_once_with(
-        runner="pytest", runner_args=["--lf", "--nf"], delay=0.5
+        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
     )
 
 
@@ -179,5 +180,5 @@ def test_invoke_runner(
     mock_emit_trigger.assert_called_once_with()
 
     mock_run_main_loop.assert_called_once_with(
-        runner=runner, runner_args=["--lf", "--nf"], delay=0.5
+        runner=runner, runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
     )

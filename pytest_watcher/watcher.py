@@ -13,6 +13,8 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
+DEFAULT_DELAY = 0.2
+
 trigger_lock = threading.Lock()
 trigger = None
 
@@ -103,8 +105,8 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser.add_argument(
         "--delay",
         type=float,
-        default=0.5,
-        help="Watcher delay in seconds (default 0.5)",
+        default=DEFAULT_DELAY,
+        help=f"Watcher delay in seconds (default DEFAULT_DELAY)",
     )
     parser.add_argument(
         "--runner",
