@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pytest-watcher"
 version = "0.2.6"
-description = "Continuously runs pytest on changes in Python projects"
+description = "Automatically rerun your tests on file modifications"
 authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
 license = "MIT"
 readme = "README.md"
