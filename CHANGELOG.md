@@ -1,3 +1,13 @@
+## [0.3.0] - 2023-06-03
+
+### Features
+
+- Allow specifying custom file patterns and ignoring specific patterns via corresponding flags (`--patterns`, `--ignore-patterns`). Special thanks to @[@aptakhin](https://github.com/aptakhin) for the contribution
+
+### Changes
+
+- Reduce default invocation delay form 0.5 to 0.2
+
 ## [0.2.6] - 2022-12-11
 
 ### Features

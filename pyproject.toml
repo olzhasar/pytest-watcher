@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-watcher"
-version = "0.2.6"
+version = "0.3.0"
 description = "Automatically rerun your tests on file modifications"
 authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
 license = "MIT"
@@ -9,7 +9,7 @@ homepage = "https://github.com/olzhasar/pytest-watcher"
 repository = "https://github.com/olzhasar/pytest-watcher"
 keywords = ["pytest", "watch", "watcher"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Framework :: Pytest",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
