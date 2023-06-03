@@ -20,6 +20,7 @@ trigger_lock = threading.Lock()
 trigger = None
 
 
+logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -79,7 +80,7 @@ class EventHandler:
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
             emit_trigger()
-            logger.debug(f"TRIGGERED event: {event.event_type} src: {event.src_path}")
+            logger.info(f"{event.src_path} {event.event_type}")
         else:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
 
