@@ -11,7 +11,7 @@ from pytest_watcher.watcher import DEFAULT_DELAY
 
 
 def test_version():
-    assert __version__ == "0.3.0"
+    assert __version__ == "0.3.1"
 
 
 @pytest.fixture(autouse=True)

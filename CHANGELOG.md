@@ -1,3 +1,14 @@
+## [0.3.1] - 2023-06-03
+
+### Features
+
+- Print information about current version, runner command and watched path on startup
+- Log all triggered events
+
+### Changes
+
+- Fix typo in `delay` argument help message
+
 ## [0.3.0] - 2023-06-03
 
 ### Features

@@ -13,7 +13,7 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 DEFAULT_DELAY = 0.2
 
 trigger_lock = threading.Lock()
