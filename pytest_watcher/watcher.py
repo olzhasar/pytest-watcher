@@ -13,6 +13,7 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
+VERSION = "0.3.0"
 DEFAULT_DELAY = 0.2
 
 trigger_lock = threading.Lock()
@@ -165,6 +166,10 @@ def run():
 
     observer.schedule(event_handler, args.path, recursive=True)
     observer.start()
+
+    sys.stdout.write(f"pytest-watcher version {VERSION}\n")
+    sys.stdout.write(f"Runner command: {args.runner} {' '.join(args.runner_args)}\n")
+    sys.stdout.write(f"Waiting for file changes in {args.path.absolute()}\n")
 
     if args.now:
         emit_trigger()

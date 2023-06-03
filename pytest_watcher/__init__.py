@@ -1,5 +1,5 @@
-__version__ = "0.3.0"
+from .watcher import VERSION, run
 
-from .watcher import run
+__version__ = VERSION
 
 __all__ = ["run"]
