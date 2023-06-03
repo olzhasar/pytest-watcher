@@ -88,7 +88,7 @@ ptw . --runner tox
 
 ## Watching different patterns
 
-You can use the `--patterns` flag to specify file patterns that you want to monitor. It accepts a list of Unix-style patterns separated by a colon. The default value is "\*.py".
+You can use the `--patterns` flag to specify file patterns that you want to monitor. It accepts a list of Unix-style patterns separated by a comma. The default value is "\*.py".
 
 Example:
 
@@ -104,7 +104,7 @@ ptw . --ignore-patterns 'settings.py,db.py'
 
 ## Delay
 
-`pytest-watcher` uses a short delay (0.2 seconds by default) before triggering the actual test run. The main motivation for this is post-processors that can run after you save the file (e.g., black plugin in your IDE). This ensures that tests will be run with the latest version of your code.
+`pytest-watcher` uses a short delay (0.2 seconds by default) before triggering the actual test run. The main motivation for this is post-processors that can run after you save the file (e.g., `black` plugin in your IDE). This ensures that tests will be run with the latest version of your code.
 
 You can control the actual delay value with the `--delay` flag:
 
