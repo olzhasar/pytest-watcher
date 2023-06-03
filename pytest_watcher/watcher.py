@@ -95,36 +95,37 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser = argparse.ArgumentParser(
         prog="pytest_watcher",
         description="""
-            Watch <path> for file changes in Python projects and run pytest
-            if such change is detected.\n
-            Any additional arguments will be passed to pytest directly
+            Watch the <path> for file changes and trigger the test runner (pytest).\n
+            Additional arguments are passed directly to the test runner.
         """,
     )
-    parser.add_argument("path", type=Path, help="path to watch")
-    parser.add_argument("--now", action="store_true", help="Run pytest instantly")
+    parser.add_argument("path", type=Path, help="The path to watch for file changes.")
+    parser.add_argument(
+        "--now", action="store_true", help="Trigger the test run immediately"
+    )
     parser.add_argument(
         "--delay",
         type=float,
         default=DEFAULT_DELAY,
-        help=f"Watcher delay in seconds (default DEFAULT_DELAY)",
+        help=f"The delay (in seconds) before triggering the test run (default: {DEFAULT_DELAY})",
     )
     parser.add_argument(
         "--runner",
         type=str,
         default="pytest",
-        help="Use another executable to run the tests.",
+        help="Specify the executable for running the tests (default: pytest)",
     )
     parser.add_argument(
         "--patterns",
         default=["*.py"],
         type=_parse_patterns,
-        help="Comma-separated Unix shell-style wildcard patterns list (default: '*.py')",
+        help="File patterns to watch, specified as comma-separated Unix-style patterns (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
         default=[],
         type=_parse_patterns,
-        help="Comma-separated Unix shell-style wildcard ignore patterns list (default: '')",
+        help="File patterns to ignore, specified as comma-separated Unix-style patterns (default: '')",
     )
 
     namespace, runner_args = parser.parse_known_args(args)
