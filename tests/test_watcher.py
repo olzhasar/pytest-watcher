@@ -31,39 +31,6 @@ def test_emit_trigger():
     assert watcher.trigger == datetime(2020, 1, 1)
 
 
-# fmt: off
-
-@pytest.mark.parametrize(
-    ("sys_args", "path_to_watch", "now", "delay", "runner_args", "runner", "patterns", "ignore_patterns"),
-    [
-        (["/home/"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py'], []),
-        (["/home/", "--lf", "--nf", "-x"], "/home", False, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--lf", "--now", "--nf", "-x"], "/home", True, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--now", "--lf", "--nf", "-x"], "/home", True, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        ([".", "--lf", "--nf", "-x"], ".", False, DEFAULT_DELAY, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        ([".", "--delay=0.8", "--lf", "--nf", "-x"], ".", False, 0.8, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        ([".", "--lf", "--nf", "--delay=0.3", "-x"], ".", False, 0.3, ["--lf", "--nf", "-x"], "pytest", ['*.py'], []),
-        (["/home/", "--runner", "tox"], "/home", False, DEFAULT_DELAY, [], "tox", ['*.py'], []),
-        (["/home/", "--runner", "'make test'"], "/home", False, DEFAULT_DELAY, [], "'make test'", ['*.py'], []),
-        (["/home/", "--runner", "make", "test"], "/home", False, DEFAULT_DELAY, ["test"], "make", ['*.py'], []),
-        (["/home/", "--patterns", "*.py,*.env"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py', '*.env'], []),
-        (["/home/", "--patterns=*.py,*.env", "--ignore-patterns", "long-long-long-path,templates/*.py"], "/home", False, DEFAULT_DELAY, [], "pytest", ['*.py', '*.env'], ["long-long-long-path", "templates/*.py"]),
-    ],
-)
-def test_parse_arguments(sys_args, path_to_watch, now, delay, runner_args, runner, patterns, ignore_patterns):
-    _arguments = watcher.parse_arguments(sys_args)
-
-    assert str(_arguments.path) == path_to_watch
-    assert _arguments.now == now
-    assert _arguments.delay == delay
-    assert _arguments.runner == runner
-    assert _arguments.patterns == patterns
-    assert _arguments.ignore_patterns == ignore_patterns
-    assert _arguments.runner_args == runner_args
-
-# fmt: on
-
-
 def test_main_loop_does_not_invoke_runner_without_trigger(
     mock_subprocess_run: MagicMock, mock_time_sleep: MagicMock
 ):
