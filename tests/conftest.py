@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -27,3 +29,13 @@ def mock_main_loop(mocker: MockerFixture):
     mock = mocker.patch("pytest_watcher.watcher.main_loop", autospec=True)
     mock.side_effect = InterruptedError
     return mock
+
+
+@pytest.fixture(scope="session")
+def tmp_path() -> Path:
+    return Path("tests/tmp")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def create_tmp_dir(tmp_path: Path):
+    tmp_path.mkdir(exist_ok=True)
