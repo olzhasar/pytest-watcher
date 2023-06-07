@@ -4,7 +4,6 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
@@ -13,9 +12,8 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
-VERSION = "0.3.2"
-DEFAULT_DELAY = 0.2
-LOOP_DELAY = 0.1
+from .config import Config
+from .constants import DEFAULT_DELAY, LOOP_DELAY, VERSION
 
 trigger_lock = threading.Lock()
 trigger = None
@@ -23,34 +21,6 @@ trigger = None
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class Config:
-    path: Path = Path.cwd()
-    now: bool = False
-    delay: float = DEFAULT_DELAY
-    runner: str = "pytest"
-    patterns: List[str] = field(default_factory=list)
-    ignore_patterns: List[str] = field(default_factory=list)
-    runner_args: List[str] = field(default_factory=list)
-
-    @property
-    def namespace_fields(self):
-        return ("now", "delay", "runner", "patterns", "ignore_patterns")
-
-    def update_from_command_line(
-        self, namespace: argparse.Namespace, runner_args: Optional[List[str]]
-    ):
-        self.path = namespace.path
-
-        for f in self.namespace_fields:
-            val = getattr(namespace, f)
-            if val:
-                setattr(self, f, val)
-
-        if runner_args:
-            self.runner_args = runner_args
 
 
 def emit_trigger():
