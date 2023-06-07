@@ -1,7 +1,7 @@
 from argparse import Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Mapping, Optional
 
 from .constants import DEFAULT_DELAY
 
@@ -32,3 +32,12 @@ class Config:
 
         if runner_args:
             self.runner_args = runner_args
+
+    def update_from_mapping(self, data: Mapping):
+        for f in self.namespace_fields:
+            val = data.get(f)
+            if val:
+                setattr(self, f, val)
+
+        if "runner_args" in data:
+            self.runner_args = data["runner_args"]
