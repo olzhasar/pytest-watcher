@@ -3,8 +3,8 @@ name: Lint & test
 on:
   push:
     branches:
-      - master
-      - main
+      - 'main'
+      - 'master'
   pull_request:
   workflow_dispatch:
 
