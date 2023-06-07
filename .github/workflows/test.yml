@@ -2,8 +2,7 @@ name: Lint & test
 
 on:
   push:
-    branches:
-      - master
+    branches: [master, main]
   pull_request:
 
 jobs:
@@ -16,7 +15,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.10
+        python-version: '3.10'
 
     - name: Run pre-commit hooks
       uses: pre-commit/action@v3.0.0
