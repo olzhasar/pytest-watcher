@@ -23,7 +23,7 @@ def mock_observer(mocker: MockerFixture):
 
 
 @pytest.fixture
-def mock_run_main_loop(mocker: MockerFixture):
-    mock = mocker.patch("pytest_watcher.watcher._run_main_loop", autospec=True)
+def mock_main_loop(mocker: MockerFixture):
+    mock = mocker.patch("pytest_watcher.watcher.main_loop", autospec=True)
     mock.side_effect = InterruptedError
     return mock

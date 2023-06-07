@@ -89,11 +89,10 @@ def _invoke_runner(runner: str, args: Sequence[str]) -> None:
     subprocess.run([runner, *args])
 
 
-def _parse_patterns(arg: str):
-    return arg.split(",")
+def parse_arguments(args: Sequence[str]) -> ParsedArguments:
+    def _parse_patterns(arg: str):
+        return arg.split(",")
 
-
-def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser = argparse.ArgumentParser(
         prog="pytest_watcher",
         description="""
@@ -143,7 +142,7 @@ def _parse_arguments(args: Sequence[str]) -> ParsedArguments:
     )
 
 
-def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
+def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
     global trigger
 
     now = datetime.now()
@@ -157,7 +156,7 @@ def _run_main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> 
 
 
 def run():
-    args = _parse_arguments(sys.argv[1:])
+    args = parse_arguments(sys.argv[1:])
 
     event_handler = EventHandler(
         patterns=args.patterns, ignore_patterns=args.ignore_patterns
@@ -177,9 +176,7 @@ def run():
 
     try:
         while True:
-            _run_main_loop(
-                runner=args.runner, runner_args=args.runner_args, delay=args.delay
-            )
+            main_loop(runner=args.runner, runner_args=args.runner_args, delay=args.delay)
     finally:
         observer.stop()
         observer.join()
