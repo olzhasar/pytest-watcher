@@ -1,10 +1,13 @@
-name: Publish to pypi
+name: Publish to Pypi and create Github release
 on:
   push:
     tags:
       - "v*.*.*"
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -12,3 +15,11 @@ jobs:
         uses: JRubics/poetry-publish@v1.17
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
+  tagged-release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: marvinpinto/action-automatic-releases@v1.2.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
