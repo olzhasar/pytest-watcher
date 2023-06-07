@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 'v4.0.1'
+    hooks:
+    - id: end-of-file-fixer
+    - id: check-case-conflict
+    - id: check-toml
+    - id: check-yaml
+    - id: debug-statements
+    - id: check-added-large-files
+    - id: check-symlinks
+    - id: detect-private-key
+  - repo: https://github.com/pycqa/isort
+    rev: '5.11.5'
+    hooks:
+    - id: isort
+  - repo: https://github.com/psf/black
+    rev: '23.3.0'
+    hooks:
+    - id: black
+  - repo: https://github.com/psf/black
+    rev: '23.3.0'
+    hooks:
+    - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.3.0'
+    hooks:
+    - id: mypy
