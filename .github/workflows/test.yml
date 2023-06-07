@@ -2,7 +2,6 @@ name: Lint & test
 
 on:
   push:
-    branches: [master, main]
   pull_request:
 
 jobs:
