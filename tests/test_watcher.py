@@ -8,7 +8,7 @@ from freezegun import freeze_time
 from pytest_mock.plugin import MockerFixture
 
 from pytest_watcher import __version__, watcher
-from pytest_watcher.watcher import DEFAULT_DELAY
+from pytest_watcher.watcher import DEFAULT_DELAY, LOOP_DELAY
 
 
 def test_version():
@@ -40,7 +40,7 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
     watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
 
     mock_subprocess_run.assert_not_called()
-    mock_time_sleep.assert_called_once_with(5)
+    mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert watcher.trigger is None
 
@@ -55,7 +55,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
         watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
 
     mock_subprocess_run.assert_not_called()
-    mock_time_sleep.assert_called_once_with(5)
+    mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert watcher.trigger == datetime(2020, 1, 1, 0, 0, 0)
 
@@ -70,7 +70,7 @@ def test_main_loop_invokes_runner_after_delay(
         watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
 
     mock_subprocess_run.assert_called_once_with(["pytest", "--lf"])
-    mock_time_sleep.assert_called_once_with(5)
+    mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert watcher.trigger is None
 

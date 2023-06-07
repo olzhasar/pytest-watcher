@@ -15,6 +15,7 @@ from watchdog.utils.patterns import match_any_paths
 
 VERSION = "0.3.1"
 DEFAULT_DELAY = 0.2
+LOOP_DELAY = 0.1
 
 trigger_lock = threading.Lock()
 trigger = None
@@ -152,7 +153,7 @@ def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
         with trigger_lock:
             trigger = None
 
-    time.sleep(delay)
+    time.sleep(LOOP_DELAY)
 
 
 def run():
