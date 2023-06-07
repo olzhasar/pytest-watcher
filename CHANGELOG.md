@@ -1,3 +1,13 @@
+## [0.3.2] - 2023-06-08
+
+### Features
+
+- Add `--version` cli command
+
+### Changes
+
+- Fix main loop delay
+
 ## [0.3.1] - 2023-06-03
 
 ### Features

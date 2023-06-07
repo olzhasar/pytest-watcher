@@ -13,7 +13,7 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 DEFAULT_DELAY = 0.2
 LOOP_DELAY = 0.1
 

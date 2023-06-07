@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pytest-watcher"
-version = "0.3.1"
+version = "0.3.2"
 description = "Automatically rerun your tests on file modifications"
 authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
 license = "MIT"
