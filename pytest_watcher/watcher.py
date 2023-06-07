@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Sequence
+from typing import List, Optional, Sequence
 
 from watchdog import events
 from watchdog.observers import Observer
@@ -55,7 +55,11 @@ class EventHandler:
         events.EVENT_TYPE_MOVED,
     }
 
-    def __init__(self, patterns: List[str] = None, ignore_patterns: List[str] = None):
+    def __init__(
+        self,
+        patterns: Optional[List[str]] = None,
+        ignore_patterns: Optional[List[str]] = None,
+    ):
         self._patterns = patterns or ["*.py"]
         self._ignore_patterns = ignore_patterns or []
 
