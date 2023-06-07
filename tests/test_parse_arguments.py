@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from pytest_watcher.watcher import DEFAULT_DELAY, parse_arguments
+from pytest_watcher.watcher import DEFAULT_DELAY, VERSION, parse_arguments
 
 
 @pytest.mark.parametrize(
@@ -89,3 +89,11 @@ def test_ignore_patterns(args: List[str], ignore_patterns: List[str]):
 def test_runner_args(args: List[str], runner_args: List[str]):
     parsed = parse_arguments(args)
     assert parsed.runner_args == runner_args
+
+
+def test_version(capsys: pytest.CaptureFixture):
+    with pytest.raises(SystemExit):
+        parse_arguments(["--version"])
+
+    captured = capsys.readouterr()
+    assert captured.out == f"{VERSION}\n"

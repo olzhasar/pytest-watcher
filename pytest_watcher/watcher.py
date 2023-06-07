@@ -129,6 +129,7 @@ def parse_arguments(args: Sequence[str]) -> ParsedArguments:
         type=_parse_patterns,
         help="File patterns to ignore, specified as comma-separated Unix-style patterns (default: '')",
     )
+    parser.add_argument("--version", action="version", version=VERSION)
 
     namespace, runner_args = parser.parse_known_args(args)
 
