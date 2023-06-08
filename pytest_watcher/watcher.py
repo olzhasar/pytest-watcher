@@ -113,7 +113,8 @@ def parse_arguments(args: Sequence[str]) -> ParsedArguments:
         "--delay",
         type=float,
         default=DEFAULT_DELAY,
-        help=f"The delay (in seconds) before triggering the test run (default: {DEFAULT_DELAY})",
+        help="The delay (in seconds) before triggering"
+        f"the test run (default: {DEFAULT_DELAY})",
     )
     parser.add_argument(
         "--runner",
@@ -125,13 +126,15 @@ def parse_arguments(args: Sequence[str]) -> ParsedArguments:
         "--patterns",
         default=["*.py"],
         type=_parse_patterns,
-        help="File patterns to watch, specified as comma-separated Unix-style patterns (default: '*.py')",
+        help="File patterns to watch, specified as comma-separated"
+        "Unix-style patterns (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
         default=[],
         type=_parse_patterns,
-        help="File patterns to ignore, specified as comma-separated Unix-style patterns (default: '')",
+        help="File patterns to ignore, specified as comma-separated"
+        "Unix-style patterns (default: '')",
     )
     parser.add_argument("--version", action="version", version=VERSION)
 
