@@ -100,7 +100,8 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
         "--delay",
         type=float,
         required=False,
-        help=f"The delay (in seconds) before triggering the test run (default: {DEFAULT_DELAY})",
+        help="The delay (in seconds) before triggering"
+        f"the test run (default: {DEFAULT_DELAY})",
     )
     parser.add_argument(
         "--runner",
@@ -112,13 +113,15 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
         "--patterns",
         type=_parse_patterns,
         required=False,
-        help="File patterns to watch, specified as comma-separated Unix-style patterns (default: '*.py')",
+        help="File patterns to watch, specified as comma-separated"
+        "Unix-style patterns (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
         type=_parse_patterns,
         required=False,
-        help="File patterns to ignore, specified as comma-separated Unix-style patterns (default: '')",
+        help="File patterns to ignore, specified as comma-separated"
+        "Unix-style patterns (default: '')",
     )
     parser.add_argument("--version", action="version", version=VERSION)
 

@@ -1,4 +1,0 @@
-[flake8]
-exclude = .git, .tox, .mypy_cache, .pytest_cache, .venv
-max-line-length = 89
-ignore = E501, W503
