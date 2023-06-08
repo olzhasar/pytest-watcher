@@ -10,18 +10,14 @@ repos:
     - id: check-added-large-files
     - id: check-symlinks
     - id: detect-private-key
-  - repo: https://github.com/pycqa/isort
-    rev: '5.11.5'
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.272
     hooks:
-    - id: isort
+      - id: ruff
   - repo: https://github.com/psf/black
     rev: '23.3.0'
     hooks:
     - id: black
-  - repo: https://github.com/PyCQA/flake8
-    rev: '3.9.2'
-    hooks:
-    - id: flake8
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: 'v1.3.0'
     hooks:

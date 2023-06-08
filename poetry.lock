@@ -104,20 +104,6 @@ docs = ["furo (>=2023.3.27)", "sphinx-autodoc-typehints (>=1.23,!=1.23.4)", "sph
 testing = ["covdefaults (>=2.3)", "coverage (>=7.2.3)", "diff-cover (>=7.5)", "pytest-cov (>=4)", "pytest-mock (>=3.10)", "pytest-timeout (>=2.1)", "pytest (>=7.3.1)"]
 
 [[package]]
-name = "flake8"
-version = "3.9.2"
-description = "the modular source code checker: pep8 pyflakes and co"
-category = "dev"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
-
-[package.dependencies]
-importlib-metadata = {version = "*", markers = "python_version < \"3.8\""}
-mccabe = ">=0.6.0,<0.7.0"
-pycodestyle = ">=2.7.0,<2.8.0"
-pyflakes = ">=2.3.0,<2.4.0"
-
-[[package]]
 name = "freezegun"
 version = "1.2.2"
 description = "Let your Python tests travel through time"
@@ -166,14 +152,6 @@ pipfile-deprecated-finder = ["pipreqs", "requirementslib", "pip-shims (>=0.5.2)"
 requirements-deprecated-finder = ["pipreqs", "pip-api"]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
 plugins = ["setuptools"]
-
-[[package]]
-name = "mccabe"
-version = "0.6.1"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "mypy"
@@ -250,22 +228,6 @@ testing = ["pytest-benchmark", "pytest"]
 dev = ["tox", "pre-commit"]
 
 [[package]]
-name = "pycodestyle"
-version = "2.7.0"
-description = "Python style guide checker"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
-name = "pyflakes"
-version = "2.3.1"
-description = "passive checker of Python programs"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-
-[[package]]
 name = "pyproject-api"
 version = "1.5.1"
 description = "API to interact with the python pyproject.toml based projects"
@@ -325,6 +287,14 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "ruff"
+version = "0.0.272"
+description = "An extremely fast Python linter, written in Rust."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
 
 [[package]]
 name = "six"
@@ -428,7 +398,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0,<4.0.0"
-content-hash = "09528be4111785d6d79b64bc8c4a7fd0dbddf278dd84c63956302b98576dcdaf"
+content-hash = "e689c24150ddc30241fe63a7ff2d6607f742802e4ca1625311be720d6d7ee03c"
 
 [metadata.files]
 black = []
@@ -440,24 +410,21 @@ coverage = []
 distlib = []
 exceptiongroup = []
 filelock = []
-flake8 = []
 freezegun = []
 importlib-metadata = []
 iniconfig = []
 isort = []
-mccabe = []
 mypy = []
 mypy-extensions = []
 packaging = []
 pathspec = []
 platformdirs = []
 pluggy = []
-pycodestyle = []
-pyflakes = []
 pyproject-api = []
 pytest = []
 pytest-mock = []
 python-dateutil = []
+ruff = []
 six = []
 tomli = []
 tox = []
