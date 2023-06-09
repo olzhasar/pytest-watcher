@@ -1,4 +1,4 @@
-# A simple watcher for pytest
+# Welcome to pytest-watcher
 
 [![PyPI](https://img.shields.io/pypi/v/pytest-watcher)](https://pypi.org/project/pytest-watcher/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytest-watcher)](https://pypi.org/project/pytest-watcher/)
@@ -10,7 +10,11 @@
 
 Works on Unix (Linux, MacOS, BSD) and Windows.
 
-## Table of Contents
+Example:
+
+![Preview](preview.gif)
+
+## Table of contents
 
 - [Motivation](#motivation)
 - [File Events](#file-events)
@@ -19,21 +23,25 @@ Works on Unix (Linux, MacOS, BSD) and Windows.
 - [Using a different test runner](#using-a-different-test-runner)
 - [Watching different patterns](#watching-different-patterns)
 - [Delay](#delay)
+- [Differences with pytest-watch](#differences-with-pytest-watch)
 - [Compatibility](#compatibility)
 - [License](#license)
 
 ## Motivation
 
-### Why not general tools (e.g. `watchmedo`, `entr`)?
+### Why not general tools
 
 - Easy to use and remember
 - Works for most python projects out of the box
-- Minimum dependencies (`watchdog` is the only one)
-- Handles post-processing properly (see [delay](#delay))
+- Uses native system monitoring API instead of polling on supported systems (see [watchdog documentation](https://python-watchdog.readthedocs.io/en/stable/installation.html#supported-platforms-and-caveats))
+- Listens for new file, delete file, change and move events
+- Runs your tests with latest changes in case of post-processing events (see [delay](#delay))
 
-### What about pytest-watch?
+### What about pytest-watch
 
-[pytest-watch](https://github.com/joeyespo/pytest-watch) has been around for a long time and used to address exactly this problem. Unfortunately, pytest-watch is no longer maintained and does not work for many users. To provide a substitute, I developed this tool.
+[pytest-watch](https://github.com/joeyespo/pytest-watch) has been around for a long time and used to address exactly this problem. Unfortunately, pytest-watch is no longer maintained and doesn't work for many users. This project provides an alternative for it.
+
+See also: [Differences with pytest-watch](#differences-with-pytest-watch)
 
 ## File events
 
@@ -54,7 +62,7 @@ pip install pytest-watcher
 
 ## Usage
 
-Specify the path that you want to monitor:
+Specify the path that you want to watch:
 
 ```sh
 ptw .
@@ -66,7 +74,7 @@ or
 ptw /home/repos/project
 ```
 
-Any arguments after `<path>` will be passed to the test runner (which is `pytest` by default). For example:
+`pytest-watcher` will pass any arguments after `<path>` to the test runner (which is `pytest` by default). For example:
 
 ```sh
 ptw . -x --lf --nf
@@ -78,7 +86,7 @@ will call `pytest` with the following arguments:
 pytest -x --lf --nf
 ```
 
-## Using a different test runner
+### Using a different test runner
 
 You can specify an alternative test runner using the `--runner` flag:
 
@@ -86,9 +94,9 @@ You can specify an alternative test runner using the `--runner` flag:
 ptw . --runner tox
 ```
 
-## Watching different patterns
+### Watching different patterns
 
-You can use the `--patterns` flag to specify file patterns that you want to monitor. It accepts a list of Unix-style patterns separated by a comma. The default value is "\*.py".
+You can use the `--patterns` flag to specify file patterns that you want to watch. It accepts a list of Unix-style patterns separated by a comma. The default value is "\*.py"
 
 Example:
 
@@ -102,21 +110,33 @@ You can also **ignore** certain patterns using the `--ignore-patterns` flag:
 ptw . --ignore-patterns 'settings.py,db.py'
 ```
 
-## Delay
+### Delay
 
-`pytest-watcher` uses a short delay (0.2 seconds by default) before triggering the actual test run. The main motivation for this is post-processors that can run after you save the file (e.g., `black` plugin in your IDE). This ensures that tests will be run with the latest version of your code.
+`pytest-watcher` uses a short delay (0.2 seconds by default) before triggering the actual test run. The main motivation for this is post-processors that can run after you save the file (for example, `black` plugin in your IDE). This ensures that tests will run with the latest version of your code.
 
 You can control the actual delay value with the `--delay` flag:
 
 `ptw . --delay 0.2`
 
-To disable the delay altogether, you can provide zero as a value:
+To disable the delay altogether, you can set zero as a value:
 
 `ptw . --delay 0`
 
+### Differences with `pytest-watch`
+
+Even though this project was inspired by [`pytest-watch`](https://github.com/joeyespo/pytest-watch), it's not a fork of it. Therefore, there are **differences** in behavior:
+
+- `pytest-watch` needs you to specify a path to watch as a first argument:
+
+```
+ptw .
+```
+
+- `pytest-watch` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
+
 ## Compatibility
 
-The code is tested for Python versions 3.7+
+The code is compatible with Python versions 3.7+
 
 ## License
 
