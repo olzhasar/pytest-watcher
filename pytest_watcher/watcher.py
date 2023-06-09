@@ -142,10 +142,9 @@ def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
 
 
 def run():
-    config = Config()
-
     namespace, runner_args = parse_arguments(sys.argv[1:])
-    config.update_from_command_line(namespace, runner_args)
+
+    config = Config.create(namespace=namespace, extra_args=runner_args)
 
     event_handler = EventHandler(
         patterns=config.patterns, ignore_patterns=config.ignore_patterns

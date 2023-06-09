@@ -39,3 +39,13 @@ def tmp_path() -> Path:
 @pytest.fixture(scope="session", autouse=True)
 def create_tmp_dir(tmp_path: Path):
     tmp_path.mkdir(exist_ok=True)
+
+
+@pytest.fixture
+def pyproject_toml_path(tmp_path: Path):
+    path = tmp_path.joinpath("pyproject.toml")
+    path.touch()
+
+    yield path
+
+    path.unlink()

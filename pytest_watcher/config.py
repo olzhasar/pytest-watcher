@@ -1,31 +1,63 @@
 from argparse import Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Mapping, Optional
+from typing import ClassVar, List, Mapping, Optional, Tuple
 
 from .constants import DEFAULT_DELAY
+
+try:
+    import tomlib
+except ImportError:
+    from pip._vendor import tomli as tomlib
 
 
 @dataclass
 class Config:
-    path: Path = Path.cwd()
+    path: Path
     now: bool = False
     delay: float = DEFAULT_DELAY
     runner: str = "pytest"
+    runner_args: List[str] = field(default_factory=list)
     patterns: List[str] = field(default_factory=list)
     ignore_patterns: List[str] = field(default_factory=list)
-    runner_args: List[str] = field(default_factory=list)
 
-    @property
-    def namespace_fields(self):
-        return ("now", "delay", "runner", "patterns", "ignore_patterns")
+    CONFIG_FIELDS: ClassVar[Tuple[str, ...]] = (
+        "now",
+        "delay",
+        "runner",
+        "patterns",
+        "ignore_patterns",
+    )
 
-    def update_from_command_line(
+    @classmethod
+    def create(
+        cls, namespace: Namespace, extra_args: Optional[List[str]] = None
+    ) -> "Config":
+        instance = cls(path=namespace.path)
+
+        config_path = find_config(namespace.path)
+        if config_path:
+            parsed = parse_config(config_path)
+            instance._update_from_mapping(parsed)
+
+        instance._update_from_namespace(namespace, extra_args or [])
+        return instance
+
+    def _update_from_mapping(self, data: Mapping):
+        for f in self.CONFIG_FIELDS:
+            val = data.get(f)
+            if val:
+                setattr(self, f, val)
+
+        if "runner_args" in data:
+            self.runner_args = data["runner_args"]
+
+    def _update_from_namespace(
         self, namespace: Namespace, runner_args: Optional[List[str]]
     ):
         self.path = namespace.path
 
-        for f in self.namespace_fields:
+        for f in self.CONFIG_FIELDS:
             val = getattr(namespace, f)
             if val:
                 setattr(self, f, val)
@@ -33,11 +65,27 @@ class Config:
         if runner_args:
             self.runner_args = runner_args
 
-    def update_from_mapping(self, data: Mapping):
-        for f in self.namespace_fields:
-            val = data.get(f)
-            if val:
-                setattr(self, f, val)
 
-        if "runner_args" in data:
-            self.runner_args = data["runner_args"]
+def find_config(cwd: Path) -> Optional[Path]:
+    filename = "pyproject.toml"
+
+    for path in (cwd, *cwd.parents):
+        config_path = path.joinpath(filename)
+
+        if config_path.exists():
+            return config_path
+
+    return None
+
+
+def parse_config(path: Path) -> Mapping:
+    with open(path, "rb") as f:
+        try:
+            data = tomlib.load(f)
+        except Exception as exc:
+            raise SystemExit(f"Error parsing pyproject.toml\n{exc}")
+
+    if "tool" in data and "pytest_watcher" in data["tool"]:
+        return data["tool"]["pytest_watcher"]
+
+    return {}
