@@ -12,7 +12,7 @@ Works on Unix (Linux, MacOS, BSD) and Windows.
 
 Example:
 
-![Preview](preview.gif)
+![Preview](docs/_static/preview.gif)
 
 ## Table of contents
 
