@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     uses: ./.github/workflows/test.yml
-  build:
+  pypi:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -15,11 +15,10 @@ jobs:
         uses: JRubics/poetry-publish@v1.17
         with:
           pypi_token: ${{ secrets.PYPI_TOKEN }}
-  tagged-release:
+  github-release:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: marvinpinto/action-automatic-releases@v1.2.1
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
+      - uses: docker://antonyurchenko/git-release:v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

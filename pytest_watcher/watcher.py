@@ -4,18 +4,16 @@ import subprocess
 import sys
 import threading
 import time
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Tuple
 
 from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
-VERSION = "0.3.2"
-DEFAULT_DELAY = 0.2
-LOOP_DELAY = 0.1
+from .config import Config
+from .constants import DEFAULT_DELAY, LOOP_DELAY, VERSION
 
 trigger_lock = threading.Lock()
 trigger = None
@@ -23,17 +21,6 @@ trigger = None
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class ParsedArguments:
-    path: Path
-    now: bool
-    delay: float
-    runner: str
-    patterns: str
-    ignore_patterns: str
-    runner_args: Sequence[str]
 
 
 def emit_trigger():
@@ -94,7 +81,7 @@ def _invoke_runner(runner: str, args: Sequence[str]) -> None:
     subprocess.run([runner, *args])
 
 
-def parse_arguments(args: Sequence[str]) -> ParsedArguments:
+def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]:
     def _parse_patterns(arg: str):
         return arg.split(",")
 
@@ -112,43 +99,33 @@ def parse_arguments(args: Sequence[str]) -> ParsedArguments:
     parser.add_argument(
         "--delay",
         type=float,
-        default=DEFAULT_DELAY,
+        required=False,
         help="The delay (in seconds) before triggering"
         f"the test run (default: {DEFAULT_DELAY})",
     )
     parser.add_argument(
         "--runner",
         type=str,
-        default="pytest",
+        required=False,
         help="Specify the executable for running the tests (default: pytest)",
     )
     parser.add_argument(
         "--patterns",
-        default=["*.py"],
         type=_parse_patterns,
+        required=False,
         help="File patterns to watch, specified as comma-separated"
         "Unix-style patterns (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
-        default=[],
         type=_parse_patterns,
+        required=False,
         help="File patterns to ignore, specified as comma-separated"
         "Unix-style patterns (default: '')",
     )
     parser.add_argument("--version", action="version", version=VERSION)
 
-    namespace, runner_args = parser.parse_known_args(args)
-
-    return ParsedArguments(
-        path=namespace.path,
-        now=namespace.now,
-        delay=namespace.delay,
-        runner=namespace.runner,
-        patterns=namespace.patterns,
-        ignore_patterns=namespace.ignore_patterns,
-        runner_args=runner_args,
-    )
+    return parser.parse_known_args(args)
 
 
 def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
@@ -165,27 +142,31 @@ def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
 
 
 def run():
-    args = parse_arguments(sys.argv[1:])
+    namespace, runner_args = parse_arguments(sys.argv[1:])
+
+    config = Config.create(namespace=namespace, extra_args=runner_args)
 
     event_handler = EventHandler(
-        patterns=args.patterns, ignore_patterns=args.ignore_patterns
+        patterns=config.patterns, ignore_patterns=config.ignore_patterns
     )
 
     observer = Observer()
 
-    observer.schedule(event_handler, args.path, recursive=True)
+    observer.schedule(event_handler, config.path, recursive=True)
     observer.start()
 
     sys.stdout.write(f"pytest-watcher version {VERSION}\n")
-    sys.stdout.write(f"Runner command: {args.runner} {' '.join(args.runner_args)}\n")
-    sys.stdout.write(f"Waiting for file changes in {args.path.absolute()}\n")
+    sys.stdout.write(f"Runner command: {config.runner} {' '.join(config.runner_args)}\n")
+    sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
 
-    if args.now:
+    if config.now:
         emit_trigger()
 
     try:
         while True:
-            main_loop(runner=args.runner, runner_args=args.runner_args, delay=args.delay)
+            main_loop(
+                runner=config.runner, runner_args=config.runner_args, delay=config.delay
+            )
     finally:
         observer.stop()
         observer.join()
