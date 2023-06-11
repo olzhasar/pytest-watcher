@@ -121,6 +121,20 @@ ptw .
 
 - `pytest-watch` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
 
+## Configuring
+
+You can configure `pytest-watcher` via `pyproject.toml` file. Here is the default configuration:
+
+```toml
+[tool.pytest-watcher]
+now = false
+delay = 0.2
+runner = "pytest"
+runner_args = []
+patterns = ["*.py"]
+ignore_patterns = []
+```
+
 ## Compatibility
 
 The code is compatible with Python versions 3.7+
