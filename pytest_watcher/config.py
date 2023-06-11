@@ -1,7 +1,7 @@
 from argparse import Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import ClassVar, List, Mapping, Optional, Tuple
+from typing import List, Mapping, Optional
 
 from .constants import DEFAULT_DELAY
 
@@ -9,6 +9,11 @@ try:
     import tomlib
 except ImportError:
     from pip._vendor import tomli as tomlib
+
+
+CONFIG_SECTION_NAME = "pytest-watcher"
+CLI_FIELDS = {"now", "delay", "runner", "patterns", "ignore_patterns"}
+CONFIG_FIELDS = CLI_FIELDS | {"runner_args"}
 
 
 @dataclass
@@ -20,14 +25,6 @@ class Config:
     runner_args: List[str] = field(default_factory=list)
     patterns: List[str] = field(default_factory=list)
     ignore_patterns: List[str] = field(default_factory=list)
-
-    CONFIG_FIELDS: ClassVar[Tuple[str, ...]] = (
-        "now",
-        "delay",
-        "runner",
-        "patterns",
-        "ignore_patterns",
-    )
 
     @classmethod
     def create(
@@ -44,20 +41,15 @@ class Config:
         return instance
 
     def _update_from_mapping(self, data: Mapping):
-        for f in self.CONFIG_FIELDS:
-            val = data.get(f)
-            if val:
-                setattr(self, f, val)
-
-        if "runner_args" in data:
-            self.runner_args = data["runner_args"]
+        for key, val in data.items():
+            setattr(self, key, val)
 
     def _update_from_namespace(
         self, namespace: Namespace, runner_args: Optional[List[str]]
     ):
         self.path = namespace.path
 
-        for f in self.CONFIG_FIELDS:
+        for f in CLI_FIELDS:
             val = getattr(namespace, f)
             if val:
                 setattr(self, f, val)
@@ -85,7 +77,14 @@ def parse_config(path: Path) -> Mapping:
         except Exception as exc:
             raise SystemExit(f"Error parsing pyproject.toml\n{exc}")
 
-    if "tool" in data and "pytest_watcher" in data["tool"]:
-        return data["tool"]["pytest_watcher"]
+    try:
+        data = data["tool"][CONFIG_SECTION_NAME]
+    except KeyError:
+        return {}
 
-    return {}
+    for key in data.keys():
+        if key not in CONFIG_FIELDS:
+            raise SystemExit(
+                f"Error parsing pyproject.toml.\nUnrecognized option: {key}"
+            )
+    return data

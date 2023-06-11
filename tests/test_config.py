@@ -3,7 +3,12 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
-from pytest_watcher.config import find_config, parse_config
+from pytest_watcher.config import (
+    find_config,
+    parse_config,
+    CONFIG_SECTION_NAME,
+    CLI_FIELDS,
+)
 from pytest_watcher.constants import DEFAULT_DELAY
 
 from pytest_watcher.watcher import Config
@@ -35,7 +40,7 @@ def config(empty_namespace: Namespace) -> Config:
 @pytest.fixture
 def pyproject_toml(pyproject_toml_path: Path) -> Path:
     pyproject_toml_path.write_text(
-        "[tool.pytest_watcher]\n"
+        f"[tool.{CONFIG_SECTION_NAME}]\n"
         "now = true\n"
         "delay = 999\n"
         "runner = 'tox'\n"
@@ -73,7 +78,7 @@ def test_cli_args(namespace: Namespace, tmp_path: Path):
 
     config = Config.create(namespace=namespace, extra_args=runner_args)
 
-    for f in config.CONFIG_FIELDS:
+    for f in CLI_FIELDS:
         assert getattr(config, f) == getattr(namespace, f)
 
     assert config.runner_args == runner_args
@@ -91,7 +96,7 @@ def test_cli_args_none_values_are_skipped(tmp_path: Path):
 
     config = Config.create(namespace=namespace, extra_args=None)
 
-    for f in config.CONFIG_FIELDS:
+    for f in CLI_FIELDS:
         assert getattr(config, f) is not None
 
     assert config.runner_args == []
@@ -113,7 +118,7 @@ def test_cli_args_preferred_over_pyproject_toml(
 
     config = Config.create(namespace, extra_args=extra_args)
 
-    for f in Config.CONFIG_FIELDS:
+    for f in CLI_FIELDS:
         assert getattr(config, f) == getattr(namespace, f)
 
     assert config.runner_args == extra_args
@@ -147,8 +152,15 @@ def test_parse_config_no_section(pyproject_toml_path: Path):
 
 def test_parse_config_parse_error(pyproject_toml_path: Path):
     pyproject_toml_path.write_text(
-        "[tool.another_section]\n" "delay = 2\nrunner = invalid\n"
+        f"[tool.{CONFIG_SECTION_NAME}]\ndelay = 2\nrunner = invalid\n"
     )
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit, match="Error parsing pyproject.toml"):
+        parse_config(pyproject_toml_path)
+
+
+def test_parse_config_unrecognized_option(pyproject_toml_path: Path):
+    pyproject_toml_path.write_text(f"[tool.{CONFIG_SECTION_NAME}]\nfoo = 'bar'\n")
+
+    with pytest.raises(SystemExit, match="Unrecognized option"):
         parse_config(pyproject_toml_path)
