@@ -1,3 +1,9 @@
+## [0.3.3] - 2023-06-11
+
+### Features
+
+- Configuring `pytest-watcher` via `pyproject.toml` file
+
 ## [0.3.2] - 2023-06-08
 
 ### Features
