@@ -6,9 +6,9 @@ from typing import List, Mapping, Optional
 from .constants import DEFAULT_DELAY
 
 try:
-    import tomlib
+    import tomllib
 except ImportError:
-    from pip._vendor import tomli as tomlib
+    import tomli as tomllib
 
 
 CONFIG_SECTION_NAME = "pytest-watcher"
@@ -73,7 +73,7 @@ def find_config(cwd: Path) -> Optional[Path]:
 def parse_config(path: Path) -> Mapping:
     with open(path, "rb") as f:
         try:
-            data = tomlib.load(f)
+            data = tomllib.load(f)
         except Exception as exc:
             raise SystemExit(f"Error parsing pyproject.toml\n{exc}")
 
