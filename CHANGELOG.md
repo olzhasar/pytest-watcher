@@ -1,3 +1,9 @@
+## [0.3.4] - 2023-06-24
+
+### Changes
+
+- Fix `tomllib` import bug
+
 ## [0.3.3] - 2023-06-11
 
 ### Features
