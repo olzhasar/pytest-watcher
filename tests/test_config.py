@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
+
 from pytest_watcher.config import (
+    CLI_FIELDS,
+    CONFIG_SECTION_NAME,
     find_config,
     parse_config,
-    CONFIG_SECTION_NAME,
-    CLI_FIELDS,
 )
 from pytest_watcher.constants import DEFAULT_DELAY
-
 from pytest_watcher.watcher import Config
 
 
