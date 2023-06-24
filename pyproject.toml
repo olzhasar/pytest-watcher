@@ -7,6 +7,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/olzhasar/pytest-watcher"
 repository = "https://github.com/olzhasar/pytest-watcher"
+documentation = "https://pytest-watcher.readthedocs.io/en/latest/"
 keywords = ["pytest", "watch", "watcher"]
 classifiers = [
     "Development Status :: 4 - Beta",
