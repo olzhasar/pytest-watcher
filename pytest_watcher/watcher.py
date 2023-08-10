@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import subprocess
 import sys
 import threading
@@ -67,7 +68,15 @@ class EventHandler:
             # For file moved type events we are also interested in the destination
             paths.append(event.dest_path)
 
-        return match_any_paths(paths, self.patterns, self.ignore_patterns)
+        # On Windows, the paths are case insensitive
+        case_sensitive = os.name != "nt"
+
+        return match_any_paths(
+            paths,
+            included_patterns=self.patterns,
+            excluded_patterns=self.ignore_patterns,
+            case_sensitive=case_sensitive,
+        )
 
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
