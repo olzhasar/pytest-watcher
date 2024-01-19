@@ -127,13 +127,13 @@ To disable the delay altogether, you can set zero as a value:
 
 Even though this project was inspired by [`pytest-watch`](https://github.com/joeyespo/pytest-watch), it's not a fork of it. Therefore, there are **differences** in behavior:
 
-- `pytest-watch` needs you to specify a path to watch as a first argument:
+- `pytest-watcher` needs you to specify a path to watch as a first argument:
 
 ```
 ptw .
 ```
 
-- `pytest-watch` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
+- `pytest-watcher` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
 
 ## Configuring
 
