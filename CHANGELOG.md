@@ -1,3 +1,9 @@
+## [0.3.5] - 2024-01-28
+
+### Features
+
+- Add `--clear` flag to clear the terminal screen before each test run
+
 ## [0.3.4] - 2023-06-24
 
 ### Changes
