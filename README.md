@@ -117,17 +117,23 @@ ptw . --ignore-patterns 'settings.py,db.py'
 
 You can control the actual delay value with the `--delay` flag:
 
-`ptw . --delay 0.2`
+```sh
+ptw . --delay 0.2
+```
 
 To disable the delay altogether, you can set zero as a value:
 
-`ptw . --delay 0`
+```sh
+ptw . --delay 0
+```
 
 ### Screen clearing
 
 Use the `--clear` flag to clear the terminal screen before each test run
 
-`ptw . --clear`
+```sh
+ptw . --clear
+```
 
 ### Differences with `pytest-watch`
 
@@ -135,7 +141,7 @@ Even though this project was inspired by [`pytest-watch`](https://github.com/joe
 
 - `pytest-watcher` needs you to specify a path to watch as a first argument:
 
-```
+```sh
 ptw .
 ```
 
@@ -148,6 +154,7 @@ You can configure `pytest-watcher` via `pyproject.toml` file. Here is the defaul
 ```toml
 [tool.pytest-watcher]
 now = false
+clear = true
 delay = 0.2
 runner = "pytest"
 runner_args = []
