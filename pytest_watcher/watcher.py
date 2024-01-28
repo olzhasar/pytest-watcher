@@ -106,13 +106,13 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
     parser.add_argument(
         "--clear",
         action="store_true",
-        help="Clear the terminal screen after each test run",
+        help="Clear the terminal screen before test run",
     )
     parser.add_argument(
         "--delay",
         type=float,
         required=False,
-        help="The delay (in seconds) before triggering"
+        help="The delay (in seconds) before triggering "
         f"the test run (default: {DEFAULT_DELAY})",
     )
     parser.add_argument(
@@ -125,14 +125,14 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
         "--patterns",
         type=_parse_patterns,
         required=False,
-        help="File patterns to watch, specified as comma-separated"
+        help="File patterns to watch, specified as comma-separated "
         "Unix-style patterns (default: '*.py')",
     )
     parser.add_argument(
         "--ignore-patterns",
         type=_parse_patterns,
         required=False,
-        help="File patterns to ignore, specified as comma-separated"
+        help="File patterns to ignore, specified as comma-separated "
         "Unix-style patterns (default: '')",
     )
     parser.add_argument("--version", action="version", version=VERSION)
