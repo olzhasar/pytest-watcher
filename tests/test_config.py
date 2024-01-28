@@ -25,6 +25,7 @@ def empty_namespace(tmp_path: Path):
     return Namespace(
         path=tmp_path,
         now=None,
+        clear=None,
         delay=None,
         runner=None,
         patterns=None,
@@ -57,6 +58,7 @@ def namespace(tmp_path: Path) -> Namespace:
     return Namespace(
         path=tmp_path,
         now=True,
+        clear=True,
         delay=20,
         runner="tox",
         patterns=["*.py", ".env"],
@@ -88,6 +90,7 @@ def test_cli_args_none_values_are_skipped(tmp_path: Path):
     namespace = Namespace(
         path=tmp_path,
         now=None,
+        clear=None,
         delay=None,
         runner=None,
         patterns=None,

@@ -36,6 +36,11 @@ def test_runner():
     assert parsed.runner == "tox"
 
 
+def test_clear():
+    parsed, _ = parse_arguments([".", "--clear"])
+    assert parsed.clear is True
+
+
 @pytest.mark.parametrize(
     ("args", "patterns"),
     [

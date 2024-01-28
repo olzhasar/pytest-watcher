@@ -12,7 +12,7 @@ except ImportError:
 
 
 CONFIG_SECTION_NAME = "pytest-watcher"
-CLI_FIELDS = {"now", "delay", "runner", "patterns", "ignore_patterns"}
+CLI_FIELDS = {"now", "clear", "delay", "runner", "patterns", "ignore_patterns"}
 CONFIG_FIELDS = CLI_FIELDS | {"runner_args"}
 
 
@@ -20,6 +20,7 @@ CONFIG_FIELDS = CLI_FIELDS | {"runner_args"}
 class Config:
     path: Path
     now: bool = False
+    clear: bool = False
     delay: float = DEFAULT_DELAY
     runner: str = "pytest"
     runner_args: List[str] = field(default_factory=list)

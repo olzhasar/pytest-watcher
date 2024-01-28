@@ -77,7 +77,14 @@ class EventHandler:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
 
 
-def _invoke_runner(runner: str, args: Sequence[str]) -> None:
+def clear_screen():
+    sys.stdout.write("\033c")
+    sys.stdout.flush()
+
+
+def _invoke_runner(runner: str, args: Sequence[str], clear: bool) -> None:
+    if clear:
+        clear_screen()
     subprocess.run([runner, *args])
 
 
@@ -95,6 +102,11 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
     parser.add_argument("path", type=Path, help="The path to watch for file changes.")
     parser.add_argument(
         "--now", action="store_true", help="Trigger the test run immediately"
+    )
+    parser.add_argument(
+        "--clear",
+        action="store_true",
+        help="Clear the terminal screen after each test run",
     )
     parser.add_argument(
         "--delay",
@@ -128,12 +140,14 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
     return parser.parse_known_args(args)
 
 
-def main_loop(*, runner: str, runner_args: Sequence[str], delay: float) -> None:
+def main_loop(
+    *, runner: str, runner_args: Sequence[str], delay: float, clear: bool
+) -> None:
     global trigger
 
     now = datetime.now()
     if trigger and now - trigger > timedelta(seconds=delay):
-        _invoke_runner(runner, runner_args)
+        _invoke_runner(runner, runner_args, clear=clear)
 
         with trigger_lock:
             trigger = None
@@ -165,7 +179,10 @@ def run():
     try:
         while True:
             main_loop(
-                runner=config.runner, runner_args=config.runner_args, delay=config.delay
+                runner=config.runner,
+                runner_args=config.runner_args,
+                delay=config.delay,
+                clear=config.clear,
             )
     finally:
         observer.stop()

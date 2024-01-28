@@ -37,7 +37,7 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
 ):
     watcher.trigger = None
 
-    watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
+    watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5, clear=False)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -52,7 +52,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:04"):
-        watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
+        watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5, clear=False)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -67,7 +67,7 @@ def test_main_loop_invokes_runner_after_delay(
     watcher.trigger = datetime(2020, 1, 1, 0, 0, 0)
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5)
+        watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5, clear=False)
 
     mock_subprocess_run.assert_called_once_with(["pytest", "--lf"])
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -103,7 +103,7 @@ def test_run_starts_the_observer_and_main_loop(
     mock_emit_trigger.assert_not_called()
 
     mock_main_loop.assert_called_once_with(
-        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
+        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY, clear=False
     )
 
 
@@ -125,7 +125,7 @@ def test_run_invokes_tests_right_away_if_now_flag_is_set(
     mock_emit_trigger.assert_called_once_with()
 
     mock_main_loop.assert_called_once_with(
-        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
+        runner="pytest", runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY, clear=False
     )
 
 
@@ -148,7 +148,30 @@ def test_custom_runner_is_passed_to_main_loop(
     mock_emit_trigger.assert_called_once_with()
 
     mock_main_loop.assert_called_once_with(
-        runner=custom_runner, runner_args=["--lf", "--nf"], delay=DEFAULT_DELAY
+        runner=custom_runner,
+        runner_args=["--lf", "--nf"],
+        delay=DEFAULT_DELAY,
+        clear=False,
+    )
+
+
+def test_clear_is_passed_to_main_loop(
+    mocker: MockerFixture,
+    mock_observer: MagicMock,
+    mock_emit_trigger: MagicMock,
+    mock_main_loop: MagicMock,
+):
+    args = ["ptw", ".", "--clear"]
+
+    mocker.patch.object(sys, "argv", args)
+
+    with pytest.raises(InterruptedError):
+        watcher.run()
+
+    assert_observer_started(mock_observer, Path("."))
+
+    mock_main_loop.assert_called_once_with(
+        runner="pytest", runner_args=[], delay=DEFAULT_DELAY, clear=True
     )
 
 
