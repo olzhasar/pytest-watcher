@@ -23,8 +23,8 @@ Example:
 - [Using a different test runner](#using-a-different-test-runner)
 - [Watching different patterns](#watching-different-patterns)
 - [Delay](#delay)
-- [Configuring](#configuring)
 - [Differences with pytest-watch](#differences-with-pytest-watch)
+- [Configuring](#configuring)
 - [Compatibility](#compatibility)
 - [License](#license)
 
@@ -122,6 +122,12 @@ You can control the actual delay value with the `--delay` flag:
 To disable the delay altogether, you can set zero as a value:
 
 `ptw . --delay 0`
+
+### Screen clearing
+
+Use the `--clear` flag to clear the terminal screen before each test run
+
+`ptw . --clear`
 
 ### Differences with `pytest-watch`
 
