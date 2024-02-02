@@ -1,18 +1,17 @@
-import argparse
 import logging
 import subprocess
 import sys
 import threading
 import time
-from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence
 
 from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
 from .config import Config
-from .constants import DEFAULT_DELAY, LOOP_DELAY, VERSION
+from .constants import LOOP_DELAY, VERSION
+from .parse import parse_arguments
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 logger = logging.getLogger(__name__)
@@ -97,58 +96,6 @@ def _invoke_runner(runner: str, args: Sequence[str], clear: bool) -> None:
     if clear:
         clear_screen()
     subprocess.run([runner, *args])
-
-
-def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]:
-    def _parse_patterns(arg: str):
-        return arg.split(",")
-
-    parser = argparse.ArgumentParser(
-        prog="pytest_watcher",
-        description="""
-            Watch the <path> for file changes and trigger the test runner (pytest).\n
-            Additional arguments are passed directly to the test runner.
-        """,
-    )
-    parser.add_argument("path", type=Path, help="The path to watch for file changes.")
-    parser.add_argument(
-        "--now", action="store_true", help="Trigger the test run immediately"
-    )
-    parser.add_argument(
-        "--clear",
-        action="store_true",
-        help="Clear the terminal screen before test run",
-    )
-    parser.add_argument(
-        "--delay",
-        type=float,
-        required=False,
-        help="The delay (in seconds) before triggering "
-        f"the test run (default: {DEFAULT_DELAY})",
-    )
-    parser.add_argument(
-        "--runner",
-        type=str,
-        required=False,
-        help="Specify the executable for running the tests (default: pytest)",
-    )
-    parser.add_argument(
-        "--patterns",
-        type=_parse_patterns,
-        required=False,
-        help="File patterns to watch, specified as comma-separated "
-        "Unix-style patterns (default: '*.py')",
-    )
-    parser.add_argument(
-        "--ignore-patterns",
-        type=_parse_patterns,
-        required=False,
-        help="File patterns to ignore, specified as comma-separated "
-        "Unix-style patterns (default: '')",
-    )
-    parser.add_argument("--version", action="version", version=VERSION)
-
-    return parser.parse_known_args(args)
 
 
 def main_loop(

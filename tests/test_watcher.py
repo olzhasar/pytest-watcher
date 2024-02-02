@@ -7,7 +7,7 @@ from freezegun import freeze_time
 from pytest_mock.plugin import MockerFixture
 
 from pytest_watcher import watcher
-from pytest_watcher.watcher import DEFAULT_DELAY, LOOP_DELAY
+from pytest_watcher.constants import DEFAULT_DELAY, LOOP_DELAY
 
 
 @pytest.fixture(autouse=True)
