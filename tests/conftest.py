@@ -16,7 +16,7 @@ def mock_time_sleep(mocker: MockerFixture):
 
 @pytest.fixture
 def mock_emit_trigger(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.emit_trigger", autospec=True)
+    return mocker.patch("pytest_watcher.watcher.trigger.emit", autospec=True)
 
 
 @pytest.fixture

@@ -4,7 +4,6 @@ import subprocess
 import sys
 import threading
 import time
-from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
@@ -15,23 +14,35 @@ from watchdog.utils.patterns import match_any_paths
 from .config import Config
 from .constants import DEFAULT_DELAY, LOOP_DELAY, VERSION
 
-trigger_lock = threading.Lock()
-trigger = None
-
-
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 logger = logging.getLogger(__name__)
 
 
-def emit_trigger():
-    """
-    Emits trigger to run pytest
-    """
+class Trigger:
+    value: float
+    lock: threading.Lock
 
-    global trigger
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.value = 0
 
-    with trigger_lock:
-        trigger = datetime.now()
+    def emit(self):
+        with self.lock:
+            self.value = time.time()
+
+    def is_empty(self):
+        return self.value == 0
+
+    def release(self):
+        with self.lock:
+            self.value = 0
+
+    def check(self, delay: float):
+        now = time.time()
+        return self.value > 0 and now - self.value > delay
+
+
+trigger = Trigger()
 
 
 class EventHandler:
@@ -71,7 +82,7 @@ class EventHandler:
 
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
-            emit_trigger()
+            trigger.emit()
             logger.info(f"{event.src_path} {event.event_type}")
         else:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
@@ -143,14 +154,10 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
 def main_loop(
     *, runner: str, runner_args: Sequence[str], delay: float, clear: bool
 ) -> None:
-    global trigger
-
-    now = datetime.now()
-    if trigger and now - trigger > timedelta(seconds=delay):
+    if trigger.check(delay):
         _invoke_runner(runner, runner_args, clear=clear)
 
-        with trigger_lock:
-            trigger = None
+        trigger.release()
 
     time.sleep(LOOP_DELAY)
 
@@ -174,7 +181,7 @@ def run():
     sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
 
     if config.now:
-        emit_trigger()
+        trigger.emit()
 
     try:
         while True:
