@@ -9,6 +9,7 @@ from watchdog import events
 from watchdog.observers import Observer
 from watchdog.utils.patterns import match_any_paths
 
+from . import term_utils
 from .config import Config
 from .constants import LOOP_DELAY, VERSION
 from .parse import parse_arguments
@@ -87,15 +88,18 @@ class EventHandler:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
 
 
-def clear_screen():
-    sys.stdout.write("\033c")
-    sys.stdout.flush()
-
-
 def _invoke_runner(runner: str, args: Sequence[str], clear: bool) -> None:
     if clear:
-        clear_screen()
+        term_utils.clear_screen()
     subprocess.run([runner, *args])
+    term_utils.print_menu(args)
+
+
+def handle_keystroke(key: str):
+    if key == "r":
+        trigger.emit()
+    elif key == "q":
+        sys.exit(0)
 
 
 def main_loop(
@@ -105,6 +109,9 @@ def main_loop(
         _invoke_runner(runner, runner_args, clear=clear)
 
         trigger.release()
+
+    key = term_utils.capture_keystroke()
+    handle_keystroke(key)
 
     time.sleep(LOOP_DELAY)
 
@@ -124,11 +131,15 @@ def run():
     observer.start()
 
     sys.stdout.write(f"pytest-watcher version {VERSION}\n")
-    sys.stdout.write(f"Runner command: {config.runner} {' '.join(config.runner_args)}\n")
+    sys.stdout.write(f"Runner command: {config.runner}\n")
     sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
+
+    term_utils.enter_cbbreak()
 
     if config.now:
         trigger.emit()
+    else:
+        term_utils.print_menu(config.runner_args)
 
     try:
         while True:
@@ -141,3 +152,5 @@ def run():
     finally:
         observer.stop()
         observer.join()
+
+        term_utils.reset_terminal()

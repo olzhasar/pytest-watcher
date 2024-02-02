@@ -49,3 +49,8 @@ def pyproject_toml_path(tmp_path: Path):
     yield path
 
     path.unlink()
+
+
+@pytest.fixture(autouse=True)
+def mock_term_utils(mocker: MockerFixture):
+    return mocker.patch("pytest_watcher.watcher.term_utils")
