@@ -121,6 +121,16 @@ def test_handle_keystroke_l_present():
     assert not watcher.trigger.is_empty()
 
 
+def test_handle_keystroke_p():
+    runner_args = ["-k", "foo", "--lf"]
+
+    watcher.handle_keystroke("p", runner_args)
+
+    assert runner_args == ["-k", "foo", "--lf", "--pdb"]
+
+    assert not watcher.trigger.is_empty()
+
+
 def test_handle_keystroke_v():
     runner_args = ["--pdb", "-k", "foo"]
 

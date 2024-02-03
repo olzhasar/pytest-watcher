@@ -111,6 +111,9 @@ def handle_keystroke(key: str, runner_args: List[str]):
     elif key == "l":
         add_runner_arg("--lf", runner_args)
         trigger.emit()
+    elif key == "p":
+        add_runner_arg("--pdb", runner_args)
+        trigger.emit()
     elif key == "v":
         add_runner_arg("-v", runner_args)
         trigger.emit()
@@ -164,6 +167,7 @@ def print_menu(runner_args: List[str]):
     _print_control("Enter", "Trigger test run")
     _print_control("r", "reset all runner args")
     _print_control("l", "run only failed tests (--lf)")
+    _print_control("p", "drop to pdb on fail (--pdb)")
     _print_control("v", "increase verbosity (-v)")
     _print_control("q", "quit pytest-watcher")
 
