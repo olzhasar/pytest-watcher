@@ -57,8 +57,8 @@ def print_menu(header: str):
 
     _print_control("Enter", "Trigger test run")
     _print_control("r", "reset all runner args")
-    _print_control("l", "run only failed tests")
-    _print_control("v", "increase verbosity")
+    _print_control("l", "run only failed tests (--lf)")
+    _print_control("v", "increase verbosity (-v)")
     _print_control("q", "quit pytest-watcher")
 
     sys.stdin.flush()

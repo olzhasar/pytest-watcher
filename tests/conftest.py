@@ -56,6 +56,11 @@ def mock_term_utils(mocker: MockerFixture):
     return mocker.patch("pytest_watcher.watcher.term_utils", autospec=True)
 
 
+@pytest.fixture(autouse=True)
+def mock_stdin_flush(mocker: MockerFixture):
+    return mocker.patch("pytest_watcher.watcher.sys.stdin.flush", autospec=True)
+
+
 @pytest.fixture
 def mock_handle_keystroke(mocker: MockerFixture):
     return mocker.patch("pytest_watcher.watcher.handle_keystroke", autospec=True)

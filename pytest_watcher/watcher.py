@@ -91,10 +91,7 @@ class EventHandler:
 def _invoke_runner(runner: str, args: List[str], clear: bool) -> None:
     if clear:
         term_utils.clear_screen()
-    term_utils.reset_terminal()
     subprocess.run([runner, *args])
-    term_utils.enter_cbbreak()
-    print_menu(args)
 
 
 def add_runner_arg(val: str, runner_args: List[str]) -> List[str]:
@@ -117,11 +114,18 @@ def handle_keystroke(key: str, runner_args: List[str]):
     elif key == "v":
         add_runner_arg("-v", runner_args)
         trigger.emit()
+    elif key == "w":
+        term_utils.clear_screen()
+        print_menu(runner_args)
+    sys.stdin.flush()
 
 
 def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool) -> None:
     if trigger.check(delay):
         _invoke_runner(runner, runner_args, clear=clear)
+
+        clear_stdin()
+        print_short_menu(runner_args)
 
         trigger.release()
 
@@ -131,9 +135,36 @@ def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool)
     time.sleep(LOOP_DELAY)
 
 
+@term_utils.posix_only
+def print_header(runner_args):
+    sys.stdout.write(f"[pytest-watcher]\nCurrent runner args: [{' '.join(runner_args)}]")
+
+
+@term_utils.posix_only
+def print_short_menu(runner_args: List[str]):
+    print_header(runner_args)
+    sys.stdout.write("\nPress w to show menu")
+
+
+@term_utils.posix_only
 def print_menu(runner_args: List[str]):
-    header = f"Current runner_args: [{' '.join(runner_args)}]"
-    term_utils.print_menu(header)
+    print_header(runner_args)
+
+    sys.stdout.write("\n\nControls:\n")
+
+    def _print_control(key: str, desc: str):
+        sys.stdout.write(f"> {key.ljust(5)} : {desc}\n")
+
+    _print_control("Enter", "Trigger test run")
+    _print_control("r", "reset all runner args")
+    _print_control("l", "run only failed tests (--lf)")
+    _print_control("v", "increase verbosity (-v)")
+    _print_control("q", "quit pytest-watcher")
+
+
+@term_utils.posix_only
+def clear_stdin():
+    sys.stdin.flush()
 
 
 def run():
