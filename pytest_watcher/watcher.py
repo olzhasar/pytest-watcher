@@ -131,7 +131,7 @@ def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool)
             _invoke_runner(runner, runner_args, clear=clear)
 
         finally:
-            term_utils.enter_cbbreak()
+            term_utils.enter_cbreak()
 
         clear_stdin()
         print_short_menu(runner_args)
@@ -195,7 +195,7 @@ def run():
     sys.stdout.write(f"Runner command: {config.runner}\n")
     sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
 
-    term_utils.enter_cbbreak()
+    term_utils.enter_cbreak()
 
     if config.now:
         trigger.emit()

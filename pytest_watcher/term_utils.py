@@ -30,7 +30,7 @@ def posix_only(f):
 
 
 @posix_only
-def enter_cbbreak():
+def enter_cbreak():
     tty.setcbreak(sys.stdin.fileno())
 
 
