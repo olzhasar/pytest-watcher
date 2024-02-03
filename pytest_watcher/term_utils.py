@@ -35,30 +35,26 @@ def enter_cbbreak():
 
 
 @posix_only
-def reset_terminal():
-    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, termios.tcgetattr(sys.stdin))
-
-
-@posix_only
 def capture_keystroke() -> Optional[str]:
     if select.select([sys.stdin], [], [], 0)[0]:
         return sys.stdin.read(1)
     return None
 
 
-@posix_only
-def print_menu(header: str):
-    sys.stdout.write(f"\n{header}\n")
+if os.name == "posix":
+    try:
+        state = termios.tcgetattr(sys.stdin.fileno())
+    except Exception:  # TODO: This is mainly for tests, refactor later
 
-    sys.stdout.write("\nControls:\n")
+        def reset_terminal():
+            pass
 
-    def _print_control(key: str, desc: str):
-        sys.stdout.write(f"> {key.ljust(5)} : {desc}\n")
+    else:
 
-    _print_control("Enter", "Trigger test run")
-    _print_control("r", "reset all runner args")
-    _print_control("l", "run only failed tests (--lf)")
-    _print_control("v", "increase verbosity (-v)")
-    _print_control("q", "quit pytest-watcher")
+        def reset_terminal():
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, state)
 
-    sys.stdin.flush()
+else:
+
+    def reset_terminal():
+        pass

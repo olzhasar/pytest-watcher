@@ -122,7 +122,13 @@ def handle_keystroke(key: str, runner_args: List[str]):
 
 def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool) -> None:
     if trigger.check(delay):
-        _invoke_runner(runner, runner_args, clear=clear)
+        term_utils.reset_terminal()
+
+        try:
+            _invoke_runner(runner, runner_args, clear=clear)
+
+        finally:
+            term_utils.enter_cbbreak()
 
         clear_stdin()
         print_short_menu(runner_args)
