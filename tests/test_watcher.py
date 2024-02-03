@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, sentinel
 
 import pytest
 from freezegun import freeze_time
@@ -62,6 +62,73 @@ def test_main_loop_invokes_runner_after_delay(
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert watcher.trigger.is_empty()
+
+
+def test_main_loop_keystroke(
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    mock_handle_keystroke: MagicMock,
+    mock_term_utils: MagicMock,
+):
+    watcher.trigger.emit()
+    mock_term_utils.capture_keystroke.return_value = sentinel.KEYSTROKE
+
+    watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5, clear=False)
+
+    mock_handle_keystroke.assert_called_once_with(sentinel.KEYSTROKE, ["--lf"])
+
+
+def test_handle_keystroke_enter():
+    watcher.handle_keystroke("\r", [])
+
+    assert not watcher.trigger.is_empty()
+
+
+def test_handle_keystroke_r():
+    runner_args = ["tests/foo", "--lf", "--nf"]
+
+    watcher.handle_keystroke("r", runner_args)
+
+    assert not watcher.trigger.is_empty()
+
+    assert runner_args == []
+
+    assert not watcher.trigger.is_empty()
+
+
+def test_handle_keystroke_q():
+    with pytest.raises(SystemExit):
+        watcher.handle_keystroke("q", [])
+
+
+def test_handle_keystroke_l():
+    runner_args = ["--pdb", "-k", "foo"]
+
+    watcher.handle_keystroke("l", runner_args)
+
+    assert runner_args == ["--pdb", "-k", "foo", "--lf"]
+
+    assert not watcher.trigger.is_empty()
+
+
+def test_handle_keystroke_l_present():
+    runner_args = ["--pdb", "-k", "foo", "--lf"]
+
+    watcher.handle_keystroke("l", runner_args)
+
+    assert runner_args == ["--pdb", "-k", "foo", "--lf"]
+
+    assert not watcher.trigger.is_empty()
+
+
+def test_handle_keystroke_v():
+    runner_args = ["--pdb", "-k", "foo"]
+
+    watcher.handle_keystroke("v", runner_args)
+
+    assert runner_args == ["--pdb", "-k", "foo", "-v"]
+
+    assert not watcher.trigger.is_empty()
 
 
 def assert_observer_started(mock_observer: MagicMock, expected_path: Path):

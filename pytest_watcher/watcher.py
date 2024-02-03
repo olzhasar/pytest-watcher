@@ -3,7 +3,7 @@ import subprocess
 import sys
 import threading
 import time
-from typing import List, Optional, Sequence
+from typing import List, Optional
 
 from watchdog import events
 from watchdog.observers import Observer
@@ -88,32 +88,52 @@ class EventHandler:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
 
 
-def _invoke_runner(runner: str, args: Sequence[str], clear: bool) -> None:
+def _invoke_runner(runner: str, args: List[str], clear: bool) -> None:
     if clear:
         term_utils.clear_screen()
+    term_utils.reset_terminal()
     subprocess.run([runner, *args])
-    term_utils.print_menu(args)
+    term_utils.enter_cbbreak()
+    print_menu(args)
 
 
-def handle_keystroke(key: str):
+def add_runner_arg(val: str, runner_args: List[str]) -> List[str]:
+    if val not in runner_args:
+        runner_args.append(val)
+    return runner_args
+
+
+def handle_keystroke(key: str, runner_args: List[str]):
+    if key == "\r":
+        trigger.emit()
     if key == "r":
+        runner_args.clear()
         trigger.emit()
     elif key == "q":
         sys.exit(0)
+    elif key == "l":
+        add_runner_arg("--lf", runner_args)
+        trigger.emit()
+    elif key == "v":
+        add_runner_arg("-v", runner_args)
+        trigger.emit()
 
 
-def main_loop(
-    *, runner: str, runner_args: Sequence[str], delay: float, clear: bool
-) -> None:
+def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool) -> None:
     if trigger.check(delay):
         _invoke_runner(runner, runner_args, clear=clear)
 
         trigger.release()
 
     key = term_utils.capture_keystroke()
-    handle_keystroke(key)
+    handle_keystroke(key, runner_args)
 
     time.sleep(LOOP_DELAY)
+
+
+def print_menu(runner_args: List[str]):
+    header = f"Current runner_args: [{' '.join(runner_args)}]"
+    term_utils.print_menu(header)
 
 
 def run():
@@ -139,7 +159,7 @@ def run():
     if config.now:
         trigger.emit()
     else:
-        term_utils.print_menu(config.runner_args)
+        print_menu(config.runner_args)
 
     try:
         while True:

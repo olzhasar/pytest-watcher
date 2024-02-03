@@ -4,7 +4,7 @@ import select
 import sys
 import termios
 import tty
-from typing import List, Optional
+from typing import Optional
 
 if os.name == "posix":
 
@@ -47,15 +47,18 @@ def capture_keystroke() -> Optional[str]:
 
 
 @posix_only
-def print_menu(runner_args: List[str]):
-    sys.stdout.write(f"\nCurrent runner args: [{' '.join(runner_args)}]\n")
+def print_menu(header: str):
+    sys.stdout.write(f"\n{header}\n")
 
     sys.stdout.write("\nControls:\n")
 
     def _print_control(key: str, desc: str):
-        sys.stdout.write(f"> {key} : {desc}\n")
+        sys.stdout.write(f"> {key.ljust(5)} : {desc}\n")
 
-    _print_control("r", "run tests")
+    _print_control("Enter", "Trigger test run")
+    _print_control("r", "reset all runner args")
+    _print_control("l", "run only failed tests")
+    _print_control("v", "increase verbosity")
     _print_control("q", "quit pytest-watcher")
 
     sys.stdin.flush()
