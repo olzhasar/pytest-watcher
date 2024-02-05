@@ -63,7 +63,9 @@ def mock_stdin_flush(mocker: MockerFixture):
 
 @pytest.fixture
 def mock_handle_keystroke(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.handle_keystroke", autospec=True)
+    return mocker.patch(
+        "pytest_watcher.watcher.CommandManager.run_command", autospec=True
+    )
 
 
 @pytest.fixture

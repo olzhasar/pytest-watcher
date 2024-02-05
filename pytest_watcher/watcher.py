@@ -1,9 +1,12 @@
+from __future__ import annotations
+
+import abc
 import logging
 import subprocess
 import sys
 import threading
 import time
-from typing import List, Optional
+from typing import Dict, List, Optional, Type
 
 from watchdog import events
 from watchdog.observers import Observer
@@ -94,33 +97,122 @@ def _invoke_runner(runner: str, args: List[str], clear: bool) -> None:
     subprocess.run([runner, *args])
 
 
-def add_runner_arg(val: str, runner_args: List[str]) -> List[str]:
-    if val not in runner_args:
-        runner_args.append(val)
-    return runner_args
+class CommandManager:
+    _registry: Dict[str, Command] = {}
+
+    @classmethod
+    def get_commands(cls):
+        return cls._registry.values()
+
+    @classmethod
+    def register(cls, command: Type[Command]):
+        if command.character in cls._registry:
+            raise ValueError(f"Duplicate character {repr(command.character)}")
+
+        cls._registry[command.character] = command()
+
+    @classmethod
+    def run_command(cls, character: str, runner_args: List[str]) -> bool:
+        command = cls._registry.get(character)
+        if command:
+            return command.run(runner_args)
+        return False
 
 
-def handle_keystroke(key: str, runner_args: List[str]):
-    if key == "\r":
-        trigger.emit()
-    if key == "r":
-        runner_args.clear()
-        trigger.emit()
-    elif key == "q":
-        sys.exit(0)
-    elif key == "l":
-        add_runner_arg("--lf", runner_args)
-        trigger.emit()
-    elif key == "p":
-        add_runner_arg("--pdb", runner_args)
-        trigger.emit()
-    elif key == "v":
-        add_runner_arg("-v", runner_args)
-        trigger.emit()
-    elif key == "w":
+class Command(abc.ABC):
+    character: str
+    caption: str
+    description: str
+    show_in_menu: bool = True
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        for field in ("character", "caption", "description"):
+            if not hasattr(cls, field):
+                raise NotImplementedError(f"{cls.__name__}: {field} not specified")
+
+        super().__init_subclass__(**kwargs)
+        CommandManager.register(cls)
+
+    @abc.abstractmethod
+    def run(self, runner_args: list[str]) -> bool:
+        """
+        Modify runner_args in-place if needed and return a bool indicating whether
+        tests should be triggered instantly
+        """
+
+    def _add_to_runner_args(self, runner_args: List[str], val: str):
+        if val not in runner_args:
+            runner_args.append(val)
+
+
+class OpenMenuCommand(Command):
+    character = "w"
+    caption = "w"
+    description = "show menu"
+    show_in_menu = False
+
+    def run(self, runner_args: list[str]):
         term_utils.clear_screen()
         print_menu(runner_args)
-    sys.stdin.flush()
+        return False
+
+
+class InvokeCommand(Command):
+    character = "\r"
+    caption = "Enter"
+    description = ""
+
+    def run(self, runner_args: list[str]) -> bool:
+        return True
+
+
+class ResetRunnerArgsCommand(Command):
+    character = "r"
+    caption = "r"
+    description = "reset all runner args"
+
+    def run(self, runner_args: list[str]):
+        runner_args.clear()
+        return True
+
+
+class OnlyFailedCommand(Command):
+    character = "l"
+    caption = "l"
+    description = "run only failed tests (--lf)"
+
+    def run(self, runner_args: list[str]):
+        self._add_to_runner_args(runner_args, "--lf")
+        return True
+
+
+class PDBCommand(Command):
+    character = "p"
+    caption = "p"
+    description = "drop to pdb on fail (--pdb)"
+
+    def run(self, runner_args: list[str]):
+        self._add_to_runner_args(runner_args, "--pdb")
+        return True
+
+
+class VerboseCommand(Command):
+    character = "v"
+    caption = "v"
+    description = "increase verbosity (-v)"
+
+    def run(self, runner_args: list[str]):
+        self._add_to_runner_args(runner_args, "-v")
+        return True
+
+
+class QuitCommand(Command):
+    character = "q"
+    caption = "q"
+    description = "quit pytest-watcher"
+
+    def run(self, runner_args: list[str]):
+        sys.exit(0)
 
 
 def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool) -> None:
@@ -139,7 +231,12 @@ def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool)
         trigger.release()
 
     key = term_utils.capture_keystroke()
-    handle_keystroke(key, runner_args)
+
+    should_trigger = CommandManager.run_command(key, runner_args)
+    if should_trigger:
+        trigger.emit()
+
+    clear_stdin()
 
     time.sleep(LOOP_DELAY)
 
@@ -161,15 +258,9 @@ def print_menu(runner_args: List[str]):
 
     sys.stdout.write("\n\nControls:\n")
 
-    def _print_control(key: str, desc: str):
-        sys.stdout.write(f"> {key.ljust(5)} : {desc}\n")
-
-    _print_control("Enter", "Trigger test run")
-    _print_control("r", "reset all runner args")
-    _print_control("l", "run only failed tests (--lf)")
-    _print_control("p", "drop to pdb on fail (--pdb)")
-    _print_control("v", "increase verbosity (-v)")
-    _print_control("q", "quit pytest-watcher")
+    for command in CommandManager.get_commands():
+        if command.show_in_menu:
+            sys.stdout.write(f"> {command.caption.ljust(5)} : {command.description}\n")
 
 
 @term_utils.posix_only

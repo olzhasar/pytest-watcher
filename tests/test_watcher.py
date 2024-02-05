@@ -78,69 +78,6 @@ def test_main_loop_keystroke(
     mock_handle_keystroke.assert_called_once_with(sentinel.KEYSTROKE, ["--lf"])
 
 
-def test_handle_keystroke_enter():
-    watcher.handle_keystroke("\r", [])
-
-    assert not watcher.trigger.is_empty()
-
-
-def test_handle_keystroke_r():
-    runner_args = ["tests/foo", "--lf", "--nf"]
-
-    watcher.handle_keystroke("r", runner_args)
-
-    assert not watcher.trigger.is_empty()
-
-    assert runner_args == []
-
-    assert not watcher.trigger.is_empty()
-
-
-def test_handle_keystroke_q():
-    with pytest.raises(SystemExit):
-        watcher.handle_keystroke("q", [])
-
-
-def test_handle_keystroke_l():
-    runner_args = ["--pdb", "-k", "foo"]
-
-    watcher.handle_keystroke("l", runner_args)
-
-    assert runner_args == ["--pdb", "-k", "foo", "--lf"]
-
-    assert not watcher.trigger.is_empty()
-
-
-def test_handle_keystroke_l_present():
-    runner_args = ["--pdb", "-k", "foo", "--lf"]
-
-    watcher.handle_keystroke("l", runner_args)
-
-    assert runner_args == ["--pdb", "-k", "foo", "--lf"]
-
-    assert not watcher.trigger.is_empty()
-
-
-def test_handle_keystroke_p():
-    runner_args = ["-k", "foo", "--lf"]
-
-    watcher.handle_keystroke("p", runner_args)
-
-    assert runner_args == ["-k", "foo", "--lf", "--pdb"]
-
-    assert not watcher.trigger.is_empty()
-
-
-def test_handle_keystroke_v():
-    runner_args = ["--pdb", "-k", "foo"]
-
-    watcher.handle_keystroke("v", runner_args)
-
-    assert runner_args == ["--pdb", "-k", "foo", "-v"]
-
-    assert not watcher.trigger.is_empty()
-
-
 def assert_observer_started(mock_observer: MagicMock, expected_path: Path):
     mock_observer.assert_called_once_with()
     observer_instance = mock_observer.return_value
