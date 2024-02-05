@@ -58,11 +58,13 @@ class EventHandler:
 
     def __init__(
         self,
+        trigger: Trigger,
         patterns: Optional[List[str]] = None,
         ignore_patterns: Optional[List[str]] = None,
     ):
         self._patterns = patterns or ["*.py"]
         self._ignore_patterns = ignore_patterns or []
+        self._trigger = trigger
 
     @property
     def patterns(self) -> List[str]:
@@ -85,7 +87,7 @@ class EventHandler:
 
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
-            trigger.emit()
+            self._trigger.emit()
             logger.info(f"{event.src_path} {event.event_type}")
         else:
             logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
@@ -274,7 +276,7 @@ def run():
     config = Config.create(namespace=namespace, extra_args=runner_args)
 
     event_handler = EventHandler(
-        patterns=config.patterns, ignore_patterns=config.ignore_patterns
+        trigger, patterns=config.patterns, ignore_patterns=config.ignore_patterns
     )
 
     observer = Observer()
