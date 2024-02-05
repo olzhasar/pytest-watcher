@@ -16,7 +16,6 @@ from .parse import parse_arguments
 from .trigger import Trigger
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
-logger = logging.getLogger(__name__)
 
 trigger = Trigger()
 
@@ -27,24 +26,24 @@ def _invoke_runner(runner: str, args: List[str], clear: bool) -> None:
     subprocess.run([runner, *args])
 
 
-def main_loop(*, runner: str, runner_args: List[str], delay: float, clear: bool) -> None:
-    if trigger.check(delay):
+def main_loop(config: Config) -> None:
+    if trigger.check(config.delay):
         term_utils.reset_terminal()
 
         try:
-            _invoke_runner(runner, runner_args, clear=clear)
+            _invoke_runner(config.runner, config.runner_args, clear=config.clear)
 
         finally:
             term_utils.enter_cbreak()
 
         clear_stdin()
-        print_short_menu(runner_args)
+        print_short_menu(config.runner_args)
 
         trigger.release()
 
     key = term_utils.capture_keystroke()
 
-    should_trigger = commands.Manager.run_command(key, runner_args)
+    should_trigger = commands.Manager.run_command(key, config.runner_args)
     if should_trigger:
         trigger.emit()
 
@@ -107,12 +106,7 @@ def run():
 
     try:
         while True:
-            main_loop(
-                runner=config.runner,
-                runner_args=config.runner_args,
-                delay=config.delay,
-                clear=config.clear,
-            )
+            main_loop(config)
     finally:
         observer.stop()
         observer.join()

@@ -3,6 +3,8 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
+from pytest_watcher.config import Config
+
 
 @pytest.fixture()
 def mock_subprocess_run(mocker: MockerFixture):
@@ -44,6 +46,11 @@ def pyproject_toml_path(tmp_path: Path):
     yield path
 
     path.unlink()
+
+
+@pytest.fixture
+def config():
+    return Config(path=Path())
 
 
 @pytest.fixture(autouse=True)
