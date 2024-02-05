@@ -73,6 +73,40 @@ def test_main_loop_invokes_runner_after_delay(
     assert trigger.is_empty()
 
 
+@freeze_time("2020-01-01 00:00:00")
+def test_main_loop_clear(
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    config: Config,
+    mock_terminal: MagicMock,
+    trigger: Trigger,
+):
+    config.clear = True
+    trigger.emit()
+
+    with freeze_time("2020-01-01 00:00:06"):
+        watcher.main_loop(trigger, config, mock_terminal)
+
+    mock_terminal.clear.assert_called_once_with()
+
+
+@freeze_time("2020-01-01 00:00:00")
+def test_main_loop_no_clear(
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    config: Config,
+    mock_terminal: MagicMock,
+    trigger: Trigger,
+):
+    config.clear = False
+    trigger.emit()
+
+    with freeze_time("2020-01-01 00:00:06"):
+        watcher.main_loop(trigger, config, mock_terminal)
+
+    mock_terminal.clear.assert_not_called()
+
+
 def test_main_loop_keystroke(
     mock_subprocess_run: MagicMock,
     mock_time_sleep: MagicMock,
