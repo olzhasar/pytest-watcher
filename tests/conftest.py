@@ -15,11 +15,6 @@ def mock_time_sleep(mocker: MockerFixture):
 
 
 @pytest.fixture
-def mock_emit_trigger(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.trigger.emit", autospec=True)
-
-
-@pytest.fixture
 def mock_observer(mocker: MockerFixture):
     return mocker.patch("pytest_watcher.watcher.Observer", autospec=True)
 
@@ -62,10 +57,8 @@ def mock_stdin_flush(mocker: MockerFixture):
 
 
 @pytest.fixture
-def mock_handle_keystroke(mocker: MockerFixture):
-    return mocker.patch(
-        "pytest_watcher.watcher.CommandManager.run_command", autospec=True
-    )
+def mock_run_command(mocker: MockerFixture):
+    return mocker.patch("pytest_watcher.commands.Manager.run_command", autospec=True)
 
 
 @pytest.fixture

@@ -67,7 +67,7 @@ def test_main_loop_invokes_runner_after_delay(
 def test_main_loop_keystroke(
     mock_subprocess_run: MagicMock,
     mock_time_sleep: MagicMock,
-    mock_handle_keystroke: MagicMock,
+    mock_run_command: MagicMock,
     mock_term_utils: MagicMock,
 ):
     watcher.trigger.emit()
@@ -75,7 +75,7 @@ def test_main_loop_keystroke(
 
     watcher.main_loop(runner="pytest", runner_args=["--lf"], delay=5, clear=False)
 
-    mock_handle_keystroke.assert_called_once_with(sentinel.KEYSTROKE, ["--lf"])
+    mock_run_command.assert_called_once_with(sentinel.KEYSTROKE, ["--lf"])
 
 
 def assert_observer_started(mock_observer: MagicMock, expected_path: Path):
