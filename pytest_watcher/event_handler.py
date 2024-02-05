@@ -8,8 +8,6 @@ from watchdog.utils.patterns import match_any_paths
 
 from .trigger import Trigger
 
-logger = logging.getLogger(__name__)
-
 trigger = Trigger()
 
 
@@ -53,6 +51,6 @@ class EventHandler:
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
             self._trigger.emit()
-            logger.info(f"{event.src_path} {event.event_type}")
+            logging.info(f"{event.src_path} {event.event_type}")
         else:
-            logger.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
+            logging.debug(f"IGNORED event: {event.event_type} src: {event.src_path}")
