@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import sys
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 from .config import Config
 from .terminal import Terminal
@@ -17,6 +17,10 @@ class Manager:
         return cls._registry.values()
 
     @classmethod
+    def get_command(cls, character: str) -> Optional[Command]:
+        return cls._registry.get(character)
+
+    @classmethod
     def register(cls, command: Type[Command]):
         if command.character in cls._registry:
             raise ValueError(f"Duplicate character {repr(command.character)}")
@@ -27,7 +31,7 @@ class Manager:
     def run_command(
         cls, character: str, trigger: Trigger, term: Terminal, config: Config
     ) -> None:
-        command = cls._registry.get(character)
+        command = cls.get_command(character)
         if command:
             command.run(trigger, term, config)
 
