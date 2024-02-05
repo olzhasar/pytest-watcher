@@ -72,7 +72,7 @@ class OpenMenuCommand(Command):
 class InvokeCommand(Command):
     character = "\r"
     caption = "Enter"
-    description = ""
+    description = "Invoke test runner"
 
     def run(self, runner_args: list[str]) -> bool:
         return True
