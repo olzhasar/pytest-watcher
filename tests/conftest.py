@@ -1,9 +1,11 @@
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
 
 from pytest_watcher.config import Config
+from pytest_watcher.terminal import Terminal
 
 
 @pytest.fixture()
@@ -53,21 +55,16 @@ def config():
     return Config(path=Path())
 
 
-@pytest.fixture(autouse=True)
-def mock_term_utils(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.term_utils", autospec=True)
-
-
-@pytest.fixture(autouse=True)
-def mock_stdin_flush(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.sys.stdin.flush", autospec=True)
-
-
 @pytest.fixture
 def mock_run_command(mocker: MockerFixture):
     return mocker.patch("pytest_watcher.commands.Manager.run_command", autospec=True)
 
 
 @pytest.fixture
-def mock_capture_keystroke(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.capture_keystroke", autospec=True)
+def mock_terminal(mocker: MockerFixture):
+    return MagicMock(spec=Terminal)
+
+
+@pytest.fixture(autouse=True)
+def _patch_get_terminal(mocker: MockerFixture, mock_terminal: MagicMock):
+    mocker.patch("pytest_watcher.watcher.get_terminal", mock_terminal)

@@ -9,6 +9,7 @@ from pytest_mock.plugin import MockerFixture
 from pytest_watcher import watcher
 from pytest_watcher.config import Config
 from pytest_watcher.constants import LOOP_DELAY
+from pytest_watcher.terminal import Terminal
 
 
 @pytest.fixture(autouse=True)
@@ -22,11 +23,14 @@ def _release():
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_does_not_invoke_runner_without_trigger(
-    mock_subprocess_run: MagicMock, mock_time_sleep: MagicMock, config: Config
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    config: Config,
+    mock_terminal: Terminal,
 ):
     watcher.trigger.emit()
 
-    watcher.main_loop(config)
+    watcher.main_loop(config, mock_terminal)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -36,13 +40,16 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_does_not_invoke_runner_before_delay(
-    mock_subprocess_run: MagicMock, mock_time_sleep: MagicMock, config: Config
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    config: Config,
+    mock_terminal: MagicMock,
 ):
     config.delay = 5
     watcher.trigger.emit()
 
     with freeze_time("2020-01-01 00:00:04"):
-        watcher.main_loop(config)
+        watcher.main_loop(config, mock_terminal)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -52,7 +59,10 @@ def test_main_loop_does_not_invoke_runner_before_delay(
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_invokes_runner_after_delay(
-    mock_subprocess_run: MagicMock, mock_time_sleep: MagicMock, config: Config
+    mock_subprocess_run: MagicMock,
+    mock_time_sleep: MagicMock,
+    config: Config,
+    mock_terminal: MagicMock,
 ):
     watcher.trigger.emit()
 
@@ -60,7 +70,7 @@ def test_main_loop_invokes_runner_after_delay(
     config.runner_args = ["foo", "bar"]
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher.main_loop(config)
+        watcher.main_loop(config, mock_terminal)
 
     mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"])
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
@@ -72,13 +82,13 @@ def test_main_loop_keystroke(
     mock_subprocess_run: MagicMock,
     mock_time_sleep: MagicMock,
     mock_run_command: MagicMock,
-    mock_term_utils: MagicMock,
     config: Config,
+    mock_terminal: MagicMock,
 ):
     watcher.trigger.emit()
-    mock_term_utils.capture_keystroke.return_value = sentinel.KEYSTROKE
+    mock_terminal.capture_keystroke.return_value = sentinel.KEYSTROKE
 
-    watcher.main_loop(config)
+    watcher.main_loop(config, mock_terminal)
 
     mock_run_command.assert_called_once_with(sentinel.KEYSTROKE, config.runner_args)
 

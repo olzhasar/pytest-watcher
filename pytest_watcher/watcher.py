@@ -4,15 +4,15 @@ import logging
 import subprocess
 import sys
 import time
-from typing import List
 
 from watchdog.observers import Observer
 
-from . import commands, term_utils
+from . import commands
 from .config import Config
 from .constants import LOOP_DELAY, VERSION
 from .event_handler import EventHandler
 from .parse import parse_arguments
+from .terminal import Terminal, get_terminal
 from .trigger import Trigger
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
@@ -20,66 +20,36 @@ logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 trigger = Trigger()
 
 
-def _invoke_runner(runner: str, args: List[str], clear: bool) -> None:
-    if clear:
-        term_utils.clear_screen()
-    subprocess.run([runner, *args])
-
-
-def main_loop(config: Config) -> None:
+def main_loop(config: Config, term: Terminal) -> None:
     if trigger.check(config.delay):
-        term_utils.reset_terminal()
+        term.reset()
+
+        if config.clear:
+            term.clear()
 
         try:
-            _invoke_runner(config.runner, config.runner_args, clear=config.clear)
+            subprocess.run([config.runner, *config.runner_args])
 
         finally:
-            term_utils.enter_cbreak()
+            term.flush_stdin()
+            term.enter_capturing_mode()
 
-        clear_stdin()
-        print_short_menu(config.runner_args)
+        term.print_short_menu(config.runner_args)
 
         trigger.release()
 
-    key = term_utils.capture_keystroke()
+    key = term.capture_keystroke()
+    if key:
+        commands.Manager.run_command(key, trigger, term, config)
 
-    should_trigger = commands.Manager.run_command(key, config.runner_args)
-    if should_trigger:
-        trigger.emit()
-
-    clear_stdin()
+    term.flush_stdin()
 
     time.sleep(LOOP_DELAY)
 
 
-@term_utils.posix_only
-def print_header(runner_args):
-    sys.stdout.write(f"[pytest-watcher]\nCurrent runner args: [{' '.join(runner_args)}]")
-
-
-@term_utils.posix_only
-def print_short_menu(runner_args: List[str]):
-    print_header(runner_args)
-    sys.stdout.write("\nPress w to show menu")
-
-
-@term_utils.posix_only
-def print_menu(runner_args: List[str]):
-    print_header(runner_args)
-
-    sys.stdout.write("\n\nControls:\n")
-
-    for command in commands.Manager.get_commands():
-        if command.show_in_menu:
-            sys.stdout.write(f"> {command.caption.ljust(5)} : {command.description}\n")
-
-
-@term_utils.posix_only
-def clear_stdin():
-    sys.stdin.flush()
-
-
 def run():
+    term = get_terminal()
+
     namespace, runner_args = parse_arguments(sys.argv[1:])
 
     config = Config.create(namespace=namespace, extra_args=runner_args)
@@ -89,26 +59,29 @@ def run():
     )
 
     observer = Observer()
-
     observer.schedule(event_handler, config.path, recursive=True)
     observer.start()
 
-    sys.stdout.write(f"pytest-watcher version {VERSION}\n")
-    sys.stdout.write(f"Runner command: {config.runner}\n")
-    sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
+    _print_intro(config)
 
-    term_utils.enter_cbreak()
+    term.enter_capturing_mode()
 
     if config.now:
         trigger.emit()
     else:
-        print_menu(config.runner_args)
+        term.print_menu(config.runner_args)
 
     try:
         while True:
-            main_loop(config)
+            main_loop(config, term)
     finally:
         observer.stop()
         observer.join()
 
-        term_utils.reset_terminal()
+        term.reset()
+
+
+def _print_intro(config: Config) -> None:
+    sys.stdout.write(f"pytest-watcher version {VERSION}\n")
+    sys.stdout.write(f"Runner command: {config.runner}\n")
+    sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")

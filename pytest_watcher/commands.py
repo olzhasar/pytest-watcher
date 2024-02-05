@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import abc
 import sys
-from typing import Dict, List, Type
+from typing import Dict, Type
 
-from . import term_utils
+from .config import Config
+from .terminal import Terminal
+from .trigger import Trigger
 
 
 class Manager:
     _registry: Dict[str, Command] = {}
 
     @classmethod
-    def get_commands(cls):
+    def list_commands(cls):
         return cls._registry.values()
 
     @classmethod
@@ -22,11 +24,12 @@ class Manager:
         cls._registry[command.character] = command()
 
     @classmethod
-    def run_command(cls, character: str, runner_args: List[str]) -> bool:
+    def run_command(
+        cls, character: str, trigger: Trigger, term: Terminal, config: Config
+    ) -> None:
         command = cls._registry.get(character)
         if command:
-            return command.run(runner_args)
-        return False
+            command.run(trigger, term, config)
 
 
 class Command(abc.ABC):
@@ -44,15 +47,11 @@ class Command(abc.ABC):
         Manager.register(cls)
 
     @abc.abstractmethod
-    def run(self, runner_args: list[str]) -> bool:
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         """
         Modify runner_args in-place if needed and return a bool indicating whether
         tests should be triggered instantly
         """
-
-    def _add_to_runner_args(self, runner_args: List[str], val: str):
-        if val not in runner_args:
-            runner_args.append(val)
 
 
 class OpenMenuCommand(Command):
@@ -61,12 +60,9 @@ class OpenMenuCommand(Command):
     description = "show menu"
     show_in_menu = False
 
-    def run(self, runner_args: list[str]):
-        from .watcher import print_menu
-
-        term_utils.clear_screen()
-        print_menu(runner_args)
-        return False
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        term.clear()
+        term.print_menu(config.runner_args)
 
 
 class InvokeCommand(Command):
@@ -74,8 +70,8 @@ class InvokeCommand(Command):
     caption = "Enter"
     description = "Invoke test runner"
 
-    def run(self, runner_args: list[str]) -> bool:
-        return True
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        trigger.emit()
 
 
 class ResetRunnerArgsCommand(Command):
@@ -83,9 +79,9 @@ class ResetRunnerArgsCommand(Command):
     caption = "r"
     description = "reset all runner args"
 
-    def run(self, runner_args: list[str]):
-        runner_args.clear()
-        return True
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        config.runner_args.clear()
+        trigger.emit()
 
 
 class OnlyFailedCommand(Command):
@@ -93,9 +89,10 @@ class OnlyFailedCommand(Command):
     caption = "l"
     description = "run only failed tests (--lf)"
 
-    def run(self, runner_args: list[str]):
-        self._add_to_runner_args(runner_args, "--lf")
-        return True
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        if "--lf" not in config.runner_args:
+            config.runner_args.append("--lf")
+        trigger.emit()
 
 
 class PDBCommand(Command):
@@ -103,9 +100,10 @@ class PDBCommand(Command):
     caption = "p"
     description = "drop to pdb on fail (--pdb)"
 
-    def run(self, runner_args: list[str]):
-        self._add_to_runner_args(runner_args, "--pdb")
-        return True
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        if "--pdb" not in config.runner_args:
+            config.runner_args.append("--pdb")
+        trigger.emit()
 
 
 class VerboseCommand(Command):
@@ -113,9 +111,10 @@ class VerboseCommand(Command):
     caption = "v"
     description = "increase verbosity (-v)"
 
-    def run(self, runner_args: list[str]):
-        self._add_to_runner_args(runner_args, "-v")
-        return True
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        if "-v" not in config.runner_args:
+            config.runner_args.append("-v")
+        trigger.emit()
 
 
 class QuitCommand(Command):
@@ -123,5 +122,5 @@ class QuitCommand(Command):
     caption = "q"
     description = "quit pytest-watcher"
 
-    def run(self, runner_args: list[str]):
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         sys.exit(0)
