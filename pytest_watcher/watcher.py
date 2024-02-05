@@ -17,10 +17,8 @@ from .trigger import Trigger
 
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 
-trigger = Trigger()
 
-
-def main_loop(config: Config, term: Terminal) -> None:
+def main_loop(trigger, config: Config, term: Terminal) -> None:
     if trigger.check(config.delay):
         term.reset()
 
@@ -49,6 +47,7 @@ def main_loop(config: Config, term: Terminal) -> None:
 
 def run():
     term = get_terminal()
+    trigger = Trigger()
 
     namespace, runner_args = parse_arguments(sys.argv[1:])
 
@@ -73,7 +72,7 @@ def run():
 
     try:
         while True:
-            main_loop(config, term)
+            main_loop(trigger, config, term)
     finally:
         observer.stop()
         observer.join()

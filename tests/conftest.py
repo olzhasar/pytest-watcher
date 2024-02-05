@@ -6,6 +6,12 @@ from pytest_mock import MockerFixture
 
 from pytest_watcher.config import Config
 from pytest_watcher.terminal import Terminal
+from pytest_watcher.trigger import Trigger
+
+
+@pytest.fixture
+def trigger():
+    return Trigger()
 
 
 @pytest.fixture()

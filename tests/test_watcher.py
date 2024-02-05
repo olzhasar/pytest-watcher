@@ -10,15 +10,7 @@ from pytest_watcher import watcher
 from pytest_watcher.config import Config
 from pytest_watcher.constants import LOOP_DELAY
 from pytest_watcher.terminal import Terminal
-
-
-@pytest.fixture(autouse=True)
-def _release():
-    """Reset trigger after each test"""
-    try:
-        yield
-    finally:
-        watcher.trigger.release()
+from pytest_watcher.trigger import Trigger
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -27,15 +19,16 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: Terminal,
+    trigger: Trigger,
 ):
-    watcher.trigger.emit()
+    trigger.emit()
 
-    watcher.main_loop(config, mock_terminal)
+    watcher.main_loop(trigger, config, mock_terminal)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert not watcher.trigger.is_empty()
+    assert not trigger.is_empty()
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -44,17 +37,18 @@ def test_main_loop_does_not_invoke_runner_before_delay(
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
+    trigger: Trigger,
 ):
     config.delay = 5
-    watcher.trigger.emit()
+    trigger.emit()
 
     with freeze_time("2020-01-01 00:00:04"):
-        watcher.main_loop(config, mock_terminal)
+        watcher.main_loop(trigger, config, mock_terminal)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert not watcher.trigger.is_empty()
+    assert not trigger.is_empty()
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -63,19 +57,20 @@ def test_main_loop_invokes_runner_after_delay(
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
+    trigger: Trigger,
 ):
-    watcher.trigger.emit()
+    trigger.emit()
 
     config.runner = "custom"
     config.runner_args = ["foo", "bar"]
 
     with freeze_time("2020-01-01 00:00:06"):
-        watcher.main_loop(config, mock_terminal)
+        watcher.main_loop(trigger, config, mock_terminal)
 
     mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"])
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert watcher.trigger.is_empty()
+    assert trigger.is_empty()
 
 
 def test_main_loop_keystroke(
@@ -83,14 +78,17 @@ def test_main_loop_keystroke(
     mock_time_sleep: MagicMock,
     mock_run_command: MagicMock,
     config: Config,
+    trigger: Trigger,
     mock_terminal: MagicMock,
 ):
-    watcher.trigger.emit()
+    trigger.emit()
     mock_terminal.capture_keystroke.return_value = sentinel.KEYSTROKE
 
-    watcher.main_loop(config, mock_terminal)
+    watcher.main_loop(trigger, config, mock_terminal)
 
-    mock_run_command.assert_called_once_with(sentinel.KEYSTROKE, config.runner_args)
+    mock_run_command.assert_called_once_with(
+        sentinel.KEYSTROKE, trigger, mock_terminal, config
+    )
 
 
 def assert_observer_started(mock_observer: MagicMock, expected_path: Path):
@@ -123,6 +121,8 @@ def test_run_invokes_tests_right_away_if_now_flag_is_set(
     mock_observer: MagicMock,
     mock_main_loop: MagicMock,
 ):
+    mock_emit = mocker.patch("pytest_watcher.watcher.Trigger.emit", autospec=True)
+
     args = ["ptw", ".", "--lf", "--nf", "--now"]
 
     mocker.patch.object(sys, "argv", args)
@@ -130,7 +130,7 @@ def test_run_invokes_tests_right_away_if_now_flag_is_set(
     with pytest.raises(InterruptedError):
         watcher.run()
 
-    assert not watcher.trigger.is_empty()
+    mock_emit.assert_called_once()
 
 
 def test_patterns_and_ignore_patterns_are_passed_to_event_handler(
