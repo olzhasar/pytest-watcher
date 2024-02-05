@@ -28,7 +28,7 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -48,7 +48,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -70,7 +70,7 @@ def test_main_loop_invokes_runner_after_delay(
     mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"])
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()
 
 
 @freeze_time("2020-01-01 00:00:00")

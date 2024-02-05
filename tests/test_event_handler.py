@@ -19,7 +19,7 @@ def test_event_types_watched(event_type, trigger: watcher.Trigger):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 def test_event_types_not_watched(trigger: watcher.Trigger):
@@ -28,7 +28,7 @@ def test_event_types_not_watched(trigger: watcher.Trigger):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()
 
 
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ def test_file_moved_dest_watched(event_class, trigger: watcher.Trigger):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 @pytest.mark.parametrize(
@@ -52,7 +52,7 @@ def test_file_moved_dest_not_watched(event_class, trigger: watcher.Trigger):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()
 
 
 @pytest.mark.parametrize("path", ["main.py", "./main.py", "/home/project/main.py"])
@@ -62,7 +62,7 @@ def test_patterns_default_watched(trigger: watcher.Trigger, path: str):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 @pytest.mark.parametrize("path", ["main.pyc", "sqlite.db", "/home/project/file.txt"])
@@ -72,7 +72,7 @@ def test_patterns_default_not_watched(trigger: watcher.Trigger, path: str):
     handler = watcher.EventHandler(trigger)
     handler.dispatch(event)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_patterns_custom_watched(
     handler = watcher.EventHandler(trigger, patterns=patterns)
     handler.dispatch(event)
 
-    assert not trigger.is_empty()
+    assert trigger.is_active()
 
 
 @pytest.mark.parametrize(
@@ -111,7 +111,7 @@ def test_patterns_custom_not_watched(
     handler = watcher.EventHandler(trigger, patterns=patterns)
     handler.dispatch(event)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()
 
 
 @pytest.mark.parametrize(
@@ -130,4 +130,4 @@ def test_patterns_ignore_not_watched(
     handler = watcher.EventHandler(trigger, ignore_patterns=ignore_patterns)
     handler.dispatch(event)
 
-    assert trigger.is_empty()
+    assert not trigger.is_active()

@@ -14,8 +14,8 @@ class Trigger:
         with self.lock:
             self.value = time.time()
 
-    def is_empty(self):
-        return self.value == 0
+    def is_active(self):
+        return self.value != 0
 
     def release(self):
         with self.lock:
