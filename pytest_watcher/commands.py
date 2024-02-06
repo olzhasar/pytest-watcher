@@ -70,7 +70,7 @@ class OpenMenuCommand(Command):
 
 
 class InvokeCommand(Command):
-    character = "\r"
+    character = "\n"
     caption = "Enter"
     description = "Invoke test runner"
 
@@ -89,8 +89,8 @@ class ResetRunnerArgsCommand(Command):
 
 
 class OnlyFailedCommand(Command):
-    character = "l"
-    caption = "l"
+    character = "f"
+    caption = "f"
     description = "run only failed tests (--lf)"
 
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
