@@ -19,10 +19,11 @@ Example:
 ### Why not general tools
 
 - Easy to use and remember
-- Works for most python projects out of the box
+- Works for most Python projects out of the box
 - Uses native system monitoring API instead of polling on supported systems (see [watchdog documentation](https://python-watchdog.readthedocs.io/en/stable/installation.html#supported-platforms-and-caveats))
 - Listens for new file, delete file, change and move events
 - Runs your tests with latest changes in case of post-processing events (see [delay](#delay))
+- Has interactive mode with handy keyboard shortcuts
 
 ### What about pytest-watch
 
@@ -103,23 +104,35 @@ ptw . --ignore-patterns 'settings.py,db.py'
 
 You can control the actual delay value with the `--delay` flag:
 
-`ptw . --delay 0.2`
+```sh
+ptw . --delay 0.2
+```
 
 To disable the delay altogether, you can set zero as a value:
 
-`ptw . --delay 0`
+```sh
+ptw . --delay 0
+```
+
+### Screen clearing
+
+Use the `--clear` flag to clear the terminal screen before each test run
+
+```sh
+ptw . --clear
+```
 
 ### Differences with `pytest-watch`
 
 Even though this project was inspired by [`pytest-watch`](https://github.com/joeyespo/pytest-watch), it's not a fork of it. Therefore, there are **differences** in behavior:
 
-- `pytest-watch` needs you to specify a path to watch as a first argument:
+- `pytest-watcher` needs you to specify a path to watch as a first argument:
 
-```
+```sh
 ptw .
 ```
 
-- `pytest-watch` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
+- `pytest-watcher` doesn't start tests immediately by default. You can customize this behavior using `--now` flag.
 
 ## Configuring
 
@@ -128,6 +141,7 @@ You can configure `pytest-watcher` via `pyproject.toml` file. Here is the defaul
 ```toml
 [tool.pytest-watcher]
 now = false
+clear = true
 delay = 0.2
 runner = "pytest"
 runner_args = []
