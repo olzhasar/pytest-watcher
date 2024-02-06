@@ -38,9 +38,6 @@ class Terminal(abc.ABC):
     def capture_keystroke(self) -> Optional[str]:
         pass
 
-    def flush_stdin(self) -> None:
-        pass
-
     def reset(self) -> None:
         pass
 
@@ -57,6 +54,7 @@ class PosixTerminal(Terminal):
         sys.stdout.flush()
 
     def enter_capturing_mode(self) -> None:
+        sys.stdin.flush()
         tty.setcbreak(sys.stdin.fileno())
 
     def capture_keystroke(self) -> Optional[str]:

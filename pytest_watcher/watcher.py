@@ -29,7 +29,6 @@ def main_loop(trigger, config: Config, term: Terminal) -> None:
             subprocess.run([config.runner, *config.runner_args])
 
         finally:
-            term.flush_stdin()
             term.enter_capturing_mode()
 
         term.print_short_menu(config.runner_args)
@@ -39,8 +38,6 @@ def main_loop(trigger, config: Config, term: Terminal) -> None:
     key = term.capture_keystroke()
     if key:
         commands.Manager.run_command(key, trigger, term, config)
-
-    term.flush_stdin()
 
     time.sleep(LOOP_DELAY)
 
