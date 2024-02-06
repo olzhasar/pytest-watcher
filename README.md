@@ -37,7 +37,7 @@ Example:
 - Uses native system monitoring API instead of polling on supported systems (see [watchdog documentation](https://python-watchdog.readthedocs.io/en/stable/installation.html#supported-platforms-and-caveats))
 - Listens for new file, delete file, change and move events
 - Runs your tests with latest changes in case of post-processing events (see [delay](#delay))
-- Has interactive mode with handy keyboard shortcuts
+- Has an interactive mode with handy keyboard shortcuts (Currently only available on POSIX systems)
 
 ### What about pytest-watch
 

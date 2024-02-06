@@ -1,3 +1,9 @@
+## [0.4.1] - 2024-02-06
+
+### Fixes
+
+- Fix termios, tty import issue on Windows
+
 ## [0.4.0] - 2024-02-06
 
 ### Features
