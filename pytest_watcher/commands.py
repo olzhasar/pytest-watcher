@@ -88,6 +88,20 @@ class ResetRunnerArgsCommand(Command):
         trigger.emit()
 
 
+class ChangeRunnerArgsCommand(Command):
+    character = "c"
+    caption = "c"
+    description = "change runner args"
+
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        term.reset()
+        raw = input("\nEnter new runner args: ")
+        new_args = raw.strip().split()
+        config.runner_args.clear()
+        config.runner_args.extend(new_args)
+        trigger.emit()
+
+
 class OnlyFailedCommand(Command):
     character = "f"
     caption = "f"
@@ -119,6 +133,16 @@ class VerboseCommand(Command):
         if "-v" not in config.runner_args:
             config.runner_args.append("-v")
         trigger.emit()
+
+
+class EraseScreenCommand(Command):
+    character = "e"
+    caption = "e"
+    description = "Erase terminal screen"
+
+    def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
+        term.clear()
+        term.print_short_menu(config.runner_args)
 
 
 class QuitCommand(Command):
