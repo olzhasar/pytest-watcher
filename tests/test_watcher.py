@@ -21,14 +21,10 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
     mock_terminal: Terminal,
     trigger: Trigger,
 ):
-    trigger.emit()
-
     watcher.main_loop(trigger, config, mock_terminal)
 
     mock_subprocess_run.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
-
-    assert trigger.is_active()
 
 
 @freeze_time("2020-01-01 00:00:00")
@@ -39,7 +35,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
     mock_terminal: MagicMock,
     trigger: Trigger,
 ):
-    config.delay = 5
+    trigger = Trigger(delay=5)
     trigger.emit()
 
     with freeze_time("2020-01-01 00:00:04"):
@@ -57,8 +53,8 @@ def test_main_loop_invokes_runner_after_delay(
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
-    trigger: Trigger,
 ):
+    trigger = Trigger(delay=5)
     trigger.emit()
 
     config.runner = "custom"

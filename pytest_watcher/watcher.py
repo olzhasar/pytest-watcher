@@ -18,8 +18,8 @@ from .trigger import Trigger
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 
 
-def main_loop(trigger, config: Config, term: Terminal) -> None:
-    if trigger.check(config.delay):
+def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
+    if trigger.check():
         term.reset()
 
         if config.clear:

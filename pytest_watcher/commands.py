@@ -75,7 +75,7 @@ class InvokeCommand(Command):
     description = "Invoke test runner"
 
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
-        trigger.emit()
+        trigger.emit_now()
 
 
 class ResetRunnerArgsCommand(Command):
@@ -85,7 +85,7 @@ class ResetRunnerArgsCommand(Command):
 
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         config.runner_args.clear()
-        trigger.emit()
+        trigger.emit_now()
 
 
 class ChangeRunnerArgsCommand(Command):
@@ -99,7 +99,7 @@ class ChangeRunnerArgsCommand(Command):
         new_args = raw.strip().split()
         config.runner_args.clear()
         config.runner_args.extend(new_args)
-        trigger.emit()
+        trigger.emit_now()
 
 
 class OnlyFailedCommand(Command):
@@ -110,7 +110,7 @@ class OnlyFailedCommand(Command):
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         if "--lf" not in config.runner_args:
             config.runner_args.append("--lf")
-        trigger.emit()
+        trigger.emit_now()
 
 
 class PDBCommand(Command):
@@ -121,7 +121,7 @@ class PDBCommand(Command):
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         if "--pdb" not in config.runner_args:
             config.runner_args.append("--pdb")
-        trigger.emit()
+        trigger.emit_now()
 
 
 class VerboseCommand(Command):
@@ -132,7 +132,7 @@ class VerboseCommand(Command):
     def run(self, trigger: Trigger, term: Terminal, config: Config) -> None:
         if "-v" not in config.runner_args:
             config.runner_args.append("-v")
-        trigger.emit()
+        trigger.emit_now()
 
 
 class EraseScreenCommand(Command):

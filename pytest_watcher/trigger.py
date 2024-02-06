@@ -3,24 +3,28 @@ import time
 
 
 class Trigger:
-    value: float
-    lock: threading.Lock
+    _value: float
+    _lock: threading.Lock
 
-    def __init__(self):
-        self.lock = threading.Lock()
-        self.value = 0
+    def __init__(self, delay: float = 0.0):
+        self._lock = threading.Lock()
+        self._value = 0
+        self._delay = delay
 
     def emit(self):
-        with self.lock:
-            self.value = time.time()
+        with self._lock:
+            self._value = time.time() + self._delay
+
+    def emit_now(self):
+        with self._lock:
+            self._value = time.time()
 
     def is_active(self):
-        return self.value != 0
+        return self._value != 0
 
     def release(self):
-        with self.lock:
-            self.value = 0
+        with self._lock:
+            self._value = 0
 
-    def check(self, delay: float):
-        now = time.time()
-        return self.value > 0 and now - self.value > delay
+    def check(self):
+        return self._value > 0 and time.time() > self._value
