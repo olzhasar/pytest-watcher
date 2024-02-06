@@ -3,9 +3,13 @@ import logging
 import os
 import select
 import sys
-import termios
-import tty
 from typing import List, Optional
+
+try:
+    import termios
+    import tty
+except ImportError:
+    pass
 
 
 class Terminal(abc.ABC):
