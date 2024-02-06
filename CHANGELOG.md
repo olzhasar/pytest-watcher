@@ -1,3 +1,9 @@
+## [0.4.0] - 2024-02-06
+
+### Features
+
+- Implement interactive mode with keyboard shortcuts for common operations
+
 ## [0.3.5] - 2024-01-28
 
 ### Features
