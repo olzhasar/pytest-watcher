@@ -77,11 +77,12 @@ def test_ignore_patterns(args: List[str], ignore_patterns: List[str]):
         ([".", "--lf", "--nf", "-vv"], ["--lf", "--nf", "-vv"]),
         ([".", "--runner", "tox", "--lf", "--nf", "-vv"], ["--lf", "--nf", "-vv"]),
         ([".", "--lf", "--nf", "-vv", "--runner", "tox"], ["--lf", "--nf", "-vv"]),
+        ([".", "--ignore", "tests/test_watcher.py"], ["--ignore", "tests/test_watcher.py"]),
     ],
 )
 def test_runner_args(args: List[str], runner_args: List[str]):
-    _, runner_args = parse_arguments(args)
-    assert runner_args == runner_args
+    _, parsed_args = parse_arguments(args)
+    assert parsed_args == runner_args
 
 
 def test_version(capsys: pytest.CaptureFixture):
