@@ -77,7 +77,8 @@ def test_ignore_patterns(args: List[str], ignore_patterns: List[str]):
         ([".", "--lf", "--nf", "-vv"], ["--lf", "--nf", "-vv"]),
         ([".", "--runner", "tox", "--lf", "--nf", "-vv"], ["--lf", "--nf", "-vv"]),
         ([".", "--lf", "--nf", "-vv", "--runner", "tox"], ["--lf", "--nf", "-vv"]),
-        ([".", "--ignore", "tests/test_watcher.py"], ["--ignore", "tests/test_watcher.py"]),
+        ([".", 
+          "--ignore", "tests/test_watcher.py"], ["--ignore", "tests/test_watcher.py"]),
     ],
 )
 def test_runner_args(args: List[str], runner_args: List[str]):
