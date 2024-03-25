@@ -15,6 +15,7 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
             Watch the <path> for file changes and trigger the test runner (pytest).\n
             Additional arguments are passed directly to the test runner.
         """,
+        allow_abbrev=False,
     )
     parser.add_argument("path", type=Path, help="The path to watch for file changes.")
     parser.add_argument(
