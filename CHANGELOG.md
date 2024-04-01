@@ -1,3 +1,9 @@
+## [0.4.2] - 2024-03-25
+
+### Fixes
+
+- Fix bug with consuming abbreviated command line arguments
+
 ## [0.4.1] - 2024-02-06
 
 ### Fixes
