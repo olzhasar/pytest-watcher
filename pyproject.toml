@@ -27,7 +27,7 @@ ptw = "pytest_watcher:run"
 [tool.poetry.dependencies]
 python = ">=3.7.0,<4.0.0"
 watchdog = ">=2.0.0"
-tomli = { version = "^2.0.1", python = "<3.12" }
+tomli = { version = "^2.0.1", python = "<3.11" }
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
