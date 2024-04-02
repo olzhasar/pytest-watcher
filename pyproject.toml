@@ -25,7 +25,7 @@ pytest-watcher = "pytest_watcher:run"
 ptw = "pytest_watcher:run"
 
 [tool.poetry.dependencies]
-python = ">=3.7.0,<3.12"
+python = ">=3.7.0,<4.0.0"
 watchdog = ">=2.0.0"
 tomli = { version = "^2.0.1", python = "<3.12" }
 
@@ -49,30 +49,9 @@ build-backend = "poetry.core.masonry.api"
 source = ["pytest_watcher"]
 omit = ['pytest_watcher/__main__.py']
 
-[tool.isort]
-profile = 'black'
-line_length = 89
-
-[tool.black]
-line-length = 89
-target-version = ['py310']
-include = '\.pyi?$'
-exclude = '''
-    (
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    )
-'''
-
 [tool.ruff]
 line-length = 89
+lint.extend-select = ["I"]
 
 [tool.mypy]
 python_version = "3.7"
