@@ -10,14 +10,15 @@ repos:
     - id: check-symlinks
     - id: detect-private-key
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.272
+    # Ruff version.
+    rev: v0.3.5
     hooks:
+      # Run the linter.
       - id: ruff
-  - repo: https://github.com/psf/black
-    rev: '23.3.0'
-    hooks:
-    - id: black
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format  
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: 'v1.3.0'
+    rev: 'v1.4.1'
     hooks:
     - id: mypy
