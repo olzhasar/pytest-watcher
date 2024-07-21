@@ -62,7 +62,7 @@ or
 ptw /home/repos/project
 ```
 
-`pytest-watcher` will pass any arguments after `<path>` to the test runner (which is `pytest` by default). For example:
+`pytest-watcher` will pass any arguments (excepted [reserved options](#available-options)) after `<path>` to the test runner (which is `pytest` by default). For example:
 
 ```sh
 ptw . -x --lf --nf
@@ -73,6 +73,17 @@ will call `pytest` with the following arguments:
 ```sh
 pytest -x --lf --nf
 ```
+
+### Available options
+
+The following options are reserved for `pytest-watcher` and will not be passed to the test runner:
+
+- `--runner` - Specify an alternative test runner
+- `--patterns` - Specify file patterns to watch
+- `--ignore-patterns` - Specify file patterns to ignore
+- `--now` - Run tests immediately after starting the watcher
+- `--delay` - Specify the delay before running tests
+- `--clear` - Clear the terminal screen before each test run
 
 ### Using a different test runner
 
