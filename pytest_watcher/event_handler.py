@@ -46,7 +46,7 @@ class EventHandler:
             # For file moved type events we are also interested in the destination
             paths.append(event.dest_path)
 
-        return match_any_paths(paths, self.patterns, self.ignore_patterns)
+        return match_any_paths(paths, included_patterns=self.patterns, excluded_patterns=self.ignore_patterns)
 
     def dispatch(self, event: events.FileSystemEvent) -> None:
         if self._is_event_watched(event):
