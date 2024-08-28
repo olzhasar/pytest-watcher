@@ -1,3 +1,9 @@
+## [0.4.3] - 2024-08-28
+
+### Fixes
+
+- Fix watchdog 5.x compatibility issue
+
 ## [0.4.2] - 2024-04-01
 
 ### Fixes
