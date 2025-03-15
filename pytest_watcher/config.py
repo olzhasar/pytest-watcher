@@ -56,7 +56,7 @@ class Config:
                 setattr(self, f, val)
 
         if runner_args:
-            self.runner_args = runner_args
+            self.runner_args += runner_args
 
 
 def find_config(cwd: Path) -> Optional[Path]:
