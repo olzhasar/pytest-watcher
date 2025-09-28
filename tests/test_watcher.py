@@ -63,7 +63,7 @@ def test_main_loop_invokes_runner_after_delay(
     with freeze_time("2020-01-01 00:00:06"):
         watcher.main_loop(trigger, config, mock_terminal)
 
-    mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"])
+    mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"], check=True)
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert not trigger.is_active()

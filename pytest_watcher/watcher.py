@@ -26,7 +26,10 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
             term.clear()
 
         try:
-            subprocess.run([config.runner, *config.runner_args])
+            subprocess.run([config.runner, *config.runner_args], check=True)
+
+        except subprocess.CalledProcessError:
+            subprocess.run(["echo", "-e", "\a"])
 
         finally:
             term.enter_capturing_mode()
