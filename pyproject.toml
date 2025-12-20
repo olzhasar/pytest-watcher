@@ -25,7 +25,7 @@ pytest-watcher = "pytest_watcher:run"
 ptw = "pytest_watcher:run"
 
 [tool.poetry.dependencies]
-python = ">=3.7.0,<4.0.0"
+python = ">=3.9.0,<4.0.0"
 watchdog = ">=2.0.0"
 tomli = { version = "^2.0.1", python = "<3.11" }
 
@@ -36,7 +36,7 @@ mypy = "*"
 pytest-mock = "*"
 freezegun = "*"
 tox = "*"
-sphinx = { version = "*", python = ">=3.8" }
+sphinx = { version = "*" }
 coverage = { extras = ["toml"], version = "*" }
 myst-parser = "^1.0.0"
 sphinx-rtd-theme = "^1.2.2"
@@ -54,6 +54,6 @@ line-length = 89
 lint.extend-select = ["I"]
 
 [tool.mypy]
-python_version = "3.7"
+python_version = "3.9"
 ignore_missing_imports = true
 exclude = ".venv"
