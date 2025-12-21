@@ -186,7 +186,7 @@ ignore_patterns = []
 
 ## Compatibility
 
-The code is compatible with Python versions 3.7+
+The code is compatible with Python versions 3.9+
 
 ## License
 
