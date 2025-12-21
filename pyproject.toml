@@ -30,16 +30,19 @@ pytest-watcher = "pytest_watcher:run"
 ptw = "pytest_watcher:run"
 
 [dependency-groups]
-dev = [
-  "pytest",
+lint = [
   "ruff",
   "mypy",
+]
+doc = [
+  "sphinx",
+  "myst-parser==1.*",
+]
+test = [
+  "pytest",
   "pytest-mock",
   "freezegun",
-  "sphinx",
   "coverage[toml]",
-  "myst-parser==1.*",
-  "sphinx-rtd-theme==1.2.2",
 ]
   
 [tool.hatch.version]
