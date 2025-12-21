@@ -1,7 +1,20 @@
-## [0.5.0] - 2025-12-11
+## [0.6.0] - 2025-12-22
 
-- Drop support for Python 3.7 & 3.8.
+### Features
+- Add notify-on-failure flag (and config option) to emit BEL symbol on test suite failure.
+
+### Infrastructure
+- Migrate from `poetry` to `uv`.
+- Remove `tox`.
+
+## [0.5.0] - 2025-12-21
+
+### Fixes
 - Merge arguments passed to the runner from config and CLI instead of overriding.
+
+### Changes
+- Drop support for Python 3.7 & 3.8.
+
 
 ## [0.4.3] - 2024-08-28
 
