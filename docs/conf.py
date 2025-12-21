@@ -9,7 +9,7 @@
 project = "pytest-watcher"
 copyright = "2023, Olzhas Arystanov"
 author = "Olzhas Arystanov"
-release = "v0.5.0"
+release = "latest"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -1,8 +1,8 @@
-[tool.poetry]
+[project]
 name = "pytest-watcher"
-version = "0.5.0"
+dynamic = ["version"]
 description = "Automatically rerun your tests on file modifications"
-authors = ["Olzhas Arystanov <o.arystanov@gmail.com>"]
+authors = [{ name = "Olzhas Arystanov", email = "o.arystanov@gmail.com" }]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/olzhasar/pytest-watcher"
@@ -19,31 +19,35 @@ classifiers = [
     "Topic :: Utilities",
 ]
 include = ["LICENSE"]
+requires-python = ">=3.9"
+dependencies = [
+  "watchdog>=2.0.0",
+  "tomli>=2.0.1; python_version < '3.11'",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 pytest-watcher = "pytest_watcher:run"
 ptw = "pytest_watcher:run"
 
-[tool.poetry.dependencies]
-python = ">=3.9.0,<4.0.0"
-watchdog = ">=2.0.0"
-tomli = { version = "^2.0.1", python = "<3.11" }
-
-[tool.poetry.dev-dependencies]
-pytest = "*"
-ruff = "*"
-mypy = "*"
-pytest-mock = "*"
-freezegun = "*"
-tox = "*"
-sphinx = { version = "*" }
-coverage = { extras = ["toml"], version = "*" }
-myst-parser = "^1.0.0"
-sphinx-rtd-theme = "^1.2.2"
+[dependency-groups]
+dev = [
+  "pytest",
+  "ruff",
+  "mypy",
+  "pytest-mock",
+  "freezegun",
+  "sphinx",
+  "coverage[toml]",
+  "myst-parser==1.*",
+  "sphinx-rtd-theme==1.2.2",
+]
+  
+[tool.hatch.version]
+source = "vcs"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [tool.coverage.run]
 source = ["pytest_watcher"]
