@@ -27,6 +27,11 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
         help="Clear the terminal screen before test run",
     )
     parser.add_argument(
+        "--notify-on-failure",
+        action="store_true",
+        help="Send BEL notification when tests fail",
+    )
+    parser.add_argument(
         "--delay",
         type=float,
         required=False,

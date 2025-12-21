@@ -26,6 +26,7 @@ def empty_namespace(tmp_path: Path):
         path=tmp_path,
         now=None,
         clear=None,
+        notify_on_failure=None,
         delay=None,
         runner=None,
         patterns=None,
@@ -43,6 +44,7 @@ def pyproject_toml(pyproject_toml_path: Path) -> Path:
     pyproject_toml_path.write_text(
         f"[tool.{CONFIG_SECTION_NAME}]\n"
         "now = true\n"
+        "notify_on_failure = true\n"
         "delay = 999\n"
         "runner = 'tox'\n"
         "runner_args = ['--lf', '--nf']\n"
@@ -59,6 +61,7 @@ def namespace(tmp_path: Path) -> Namespace:
         path=tmp_path,
         now=True,
         clear=True,
+        notify_on_failure=True,
         delay=20,
         runner="tox",
         patterns=["*.py", ".env"],
@@ -68,6 +71,7 @@ def namespace(tmp_path: Path) -> Namespace:
 
 def test_default_values(config: Config):
     assert config.now is False
+    assert config.notify_on_failure is False
     assert config.delay == DEFAULT_DELAY
     assert config.runner == "pytest"
     assert config.runner_args == []
@@ -91,6 +95,7 @@ def test_cli_args_none_values_are_skipped(tmp_path: Path):
         path=tmp_path,
         now=None,
         clear=None,
+        notify_on_failure=None,
         delay=None,
         runner=None,
         patterns=None,
@@ -107,6 +112,7 @@ def test_cli_args_none_values_are_skipped(tmp_path: Path):
 
 def test_pyproject_toml(pyproject_toml: Path, config: Config):
     assert config.now is True
+    assert config.notify_on_failure is True
     assert config.delay == 999
     assert config.runner == "tox"
     assert config.runner_args == ["--lf", "--nf"]

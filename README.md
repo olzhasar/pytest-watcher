@@ -98,6 +98,7 @@ The following options are reserved for `pytest-watcher` and will not be passed t
 - `--now` - Run tests immediately after starting the watcher
 - `--delay` - Specify the delay before running tests
 - `--clear` - Clear the terminal screen before each test run
+- `--notify-on-failure` - Send BEL notification on test run failure
 
 ### Using a different test runner
 
@@ -147,6 +148,14 @@ Use the `--clear` flag to clear the terminal screen before each test run
 ptw . --clear
 ```
 
+### Enable BEL notification
+
+Use the `--notify-on-failure` flag to emit the [BEL symbol](https://en.wikipedia.org/wiki/Bell_character) to the terminal when the test run fails. This will trigger an audible or visual alert in some terminal applications.
+
+```sh
+ptw . --notify-on-failure
+```
+
 ### Differences with `pytest-watch`
 
 Even though this project was inspired by [`pytest-watch`](https://github.com/joeyespo/pytest-watch), it's not a fork of it. Therefore, there are **differences** in behavior:
@@ -167,6 +176,7 @@ You can configure `pytest-watcher` via `pyproject.toml` file. Here is the defaul
 [tool.pytest-watcher]
 now = false
 clear = true
+notify_on_failure = false
 delay = 0.2
 runner = "pytest"
 runner_args = []

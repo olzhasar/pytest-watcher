@@ -26,8 +26,10 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
             term.clear()
 
         try:
-            subprocess.run([config.runner, *config.runner_args])
-
+            subprocess.run([config.runner, *config.runner_args], check=True)
+        except subprocess.CalledProcessError:
+            if config.notify_on_failure:
+                term.print_bell()
         finally:
             term.enter_capturing_mode()
 

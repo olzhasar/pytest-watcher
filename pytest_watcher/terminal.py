@@ -11,6 +11,8 @@ try:
 except ImportError:
     pass
 
+BEL_SYMBOL: str = "\a"
+
 
 class Terminal(abc.ABC):
     def clear(self):
@@ -36,6 +38,9 @@ class Terminal(abc.ABC):
             if command.show_in_menu:
                 self.print(f"> {command.caption.ljust(5)} : {command.description}\n")
 
+    def print_bell(self) -> None:
+        pass
+
     def enter_capturing_mode(self) -> None:
         pass
 
@@ -55,6 +60,10 @@ class PosixTerminal(Terminal):
 
     def clear(self) -> None:
         sys.stdout.write("\033c")
+        sys.stdout.flush()
+
+    def print_bell(self) -> None:
+        sys.stdout.write(BEL_SYMBOL)
         sys.stdout.flush()
 
     def enter_capturing_mode(self) -> None:
