@@ -44,6 +44,9 @@ test = [
   "freezegun",
   "coverage[toml]",
 ]
+release = [
+  "towncrier",
+]
   
 [tool.hatch.version]
 source = "vcs"
@@ -64,3 +67,9 @@ lint.extend-select = ["I"]
 python_version = "3.9"
 ignore_missing_imports = true
 exclude = ".venv"
+
+[tool.towncrier]
+directory = "changelog.d"
+filename = "CHANGELOG.md"
+title_format = "## [{version}](https://github.com/olzhasar/pytest-watcher/releases/tag/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/olzhasar/pytest-watcher/issues/{issue})"

@@ -4,10 +4,7 @@ on:
     tags:
       - "v*.*.*"
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
   pypi:
-    needs: test
     runs-on: ubuntu-latest
     environment:
       name: pypi
