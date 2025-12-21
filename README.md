@@ -98,7 +98,7 @@ The following options are reserved for `pytest-watcher` and will not be passed t
 - `--now` - Run tests immediately after starting the watcher
 - `--delay` - Specify the delay before running tests
 - `--clear` - Clear the terminal screen before each test run
-- `--notify-on-failure` - Send BEL notification when tests fail
+- `--notify-on-failure` - Send BEL notification on test run failure
 
 ### Using a different test runner
 
@@ -148,9 +148,9 @@ Use the `--clear` flag to clear the terminal screen before each test run
 ptw . --clear
 ```
 
-### Switch on BEL notification
+### Enable BEL notification
 
-Use the `--notify-on-failure` flag to send BEL symbol to the terminal after tests fail
+Use the `--notify-on-failure` flag to emit the [BEL symbol](https://en.wikipedia.org/wiki/Bell_character) to the terminal when the test run fails. This will trigger an audible or visual alert in some terminal applications.
 
 ```sh
 ptw . --notify-on-failure

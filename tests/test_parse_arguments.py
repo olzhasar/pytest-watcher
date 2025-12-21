@@ -40,9 +40,11 @@ def test_clear():
     parsed, _ = parse_arguments([".", "--clear"])
     assert parsed.clear is True
 
+
 def test_notify_on_failure():
     parsed, _ = parse_arguments([".", "--notify-on-failure"])
     assert parsed.notify_on_failure is True
+
 
 @pytest.mark.parametrize(
     ("args", "patterns"),

@@ -15,8 +15,6 @@ from .parse import parse_arguments
 from .terminal import Terminal, get_terminal
 from .trigger import Trigger
 
-BEL_SYMBOL: str = "\a"
-
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 
 
@@ -29,13 +27,9 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
 
         try:
             subprocess.run([config.runner, *config.runner_args], check=True)
-
         except subprocess.CalledProcessError:
             if config.notify_on_failure:
-                print(BEL_SYMBOL, end="", flush=True)
-            else:
-                pass
-
+                term.print_bell()
         finally:
             term.enter_capturing_mode()
 
