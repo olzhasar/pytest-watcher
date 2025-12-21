@@ -114,9 +114,10 @@ def test_pyproject_toml(pyproject_toml: Path, config: Config):
     assert config.ignore_patterns == ["ignore.py"]
 
 
-def test_cli_args_preferred_over_pyproject_toml(
+def test_cli_args_are_merged_with_the_ones_from_pyproject_toml(
     pyproject_toml: Path, namespace: Namespace
 ):
+    config_args = ["--lf", "--nf"]
     extra_args = ["--cli", "--args"]
 
     config = Config.create(namespace, extra_args=extra_args)
@@ -124,7 +125,7 @@ def test_cli_args_preferred_over_pyproject_toml(
     for f in CLI_FIELDS:
         assert getattr(config, f) == getattr(namespace, f)
 
-    assert config.runner_args == extra_args
+    assert config.runner_args == config_args + extra_args
 
 
 @pytest.mark.parametrize(

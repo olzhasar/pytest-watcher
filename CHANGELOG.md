@@ -1,3 +1,8 @@
+## [0.5.0] - 2025-12-11
+
+- Drop support for Python 3.7 & 3.8.
+- Merge arguments passed to the runner from config and CLI instead of overriding.
+
 ## [0.4.3] - 2024-08-28
 
 ### Fixes
