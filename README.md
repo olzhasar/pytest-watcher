@@ -188,6 +188,10 @@ ignore_patterns = []
 
 The code is compatible with Python versions 3.9+
 
+## Contributing
+
+Please, check [CONTRIBUTING.md](github.com/olzhasar/pytest-watcher/CONTRIBUTING.md)
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
