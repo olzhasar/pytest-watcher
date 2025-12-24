@@ -25,6 +25,7 @@ jobs:
     - name: Install towncrier
       run: uv sync --only-group release
     - name: Run towncrier check
+      if: (contains(github.event.pull_request.labels.*.name, '-changelog') == false) && (github.event.pull_request.base.ref != '')
       run: uv run towncrier check --compare-with origin/${{github.event.pull_request.base.ref}}
   test:
     runs-on: ubuntu-latest
