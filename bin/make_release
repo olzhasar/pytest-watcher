@@ -1,0 +1,42 @@
+#!/bin/sh
+
+set -e
+
+version="$1"
+
+if [ -z "$version" ]; then
+  echo "Usage: $0 <version>"
+  exit 1
+fi
+
+if ! [[ "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Version must be in v0.0.0 format"
+  exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Commit existing changes before proceeding with the release"
+  exit 1
+fi
+
+if ! towncrier check; then
+  echo "Nothing to release"
+  exit 1
+fi
+
+towncrier build --version "$version" --yes
+
+commit_msg="release $version"
+
+git add -A
+git commit -m "$commit_msg"
+echo "Created commit $commit_msg"
+echo "Next steps:"
+echo ""
+echo "  $ git push origin master"
+
+echo "Wait for CI to pass and then:"
+echo ""
+
+echo "  $ git tag $version"
+echo "  $ git push origin $version"

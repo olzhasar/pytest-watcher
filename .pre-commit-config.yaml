@@ -22,3 +22,8 @@ repos:
     rev: 'v1.19.1'
     hooks:
     - id: mypy
+  - repo: https://github.com/twisted/towncrier
+    rev: 23.11.0
+    hooks:
+      - id: towncrier-check
+        args: ['--dir', 'changelog.d', '--compare-with', 'origin/master']
