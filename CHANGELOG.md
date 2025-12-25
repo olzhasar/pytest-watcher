@@ -1,3 +1,18 @@
+## [v0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/v0.6.1) - 2025-12-26
+
+### Bugfixes
+
+- Trigger tests in interactive mode for carriage return character
+
+### Improved Documentation
+
+- Add contributing guide
+
+### Misc
+
+- Integrate [towncrier](https://towncrier.readthedocs.io/en/stable/index.html) into the development process
+
+
 ## [0.6.0] - 2025-12-22
 
 ### Features
