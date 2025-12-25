@@ -1,4 +1,4 @@
-## [v0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/v0.6.1) - 2025-12-26
+## [0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/v0.6.1) - 2025-12-26
 
 ### Bugfixes
 
