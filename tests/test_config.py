@@ -123,6 +123,8 @@ def test_pyproject_toml(pyproject_toml: Path, config: Config):
 def test_cli_args_are_merged_with_the_ones_from_pyproject_toml(
     pyproject_toml: Path, namespace: Namespace
 ):
+    namespace.ignore_patterns = []
+
     config_args = ["--lf", "--nf"]
     extra_args = ["--cli", "--args"]
 
@@ -130,6 +132,8 @@ def test_cli_args_are_merged_with_the_ones_from_pyproject_toml(
 
     for f in CLI_FIELDS:
         assert getattr(config, f) == getattr(namespace, f)
+
+    assert config.ignore_patterns == []
 
     assert config.runner_args == config_args + extra_args
 

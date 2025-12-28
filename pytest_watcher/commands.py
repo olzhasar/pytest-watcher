@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import sys
+from typing import Iterable
 
 from .config import Config
 from .terminal import Terminal
@@ -12,15 +13,20 @@ class Manager:
     _registry: dict[str, Command] = {}
 
     @classmethod
-    def list_commands(cls):
-        return cls._registry.values()
+    def list_commands(cls) -> Iterable[Command]:
+        prev: Command | None = None
+
+        for cmd in cls._registry.values():
+            if cmd is not prev:
+                prev = cmd
+                yield cmd
 
     @classmethod
     def get_command(cls, character: str) -> Command | None:
         return cls._registry.get(character)
 
     @classmethod
-    def register(cls, command: type[Command]):
+    def register(cls, command: type[Command]) -> None:
         _command = command()
 
         for char in command.get_characters():

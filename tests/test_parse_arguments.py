@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -15,7 +14,7 @@ from pytest_watcher.watcher import VERSION, parse_arguments
         (["/project/", "/tests/"], Path("/project")),
     ],
 )
-def test_path(args: List[str], path_to_watch: str):
+def test_path(args: list[str], path_to_watch: str):
     parsed, _ = parse_arguments(args)
 
     assert parsed.path == path_to_watch
@@ -46,33 +45,27 @@ def test_notify_on_failure():
     assert parsed.notify_on_failure is True
 
 
+@pytest.mark.parametrize("field", ["patterns", "ignore_patterns"])
 @pytest.mark.parametrize(
-    ("args", "patterns"),
+    ("input_value", "result"),
     [
-        ([".", "--patterns", "*.py,*.env"], ["*.py", "*.env"]),
+        ("", []),
+        ("*.py,*.env", ["*.py", "*.env"]),
         (
-            [".", "--patterns", "*.py,*.env,project/pyproject.toml"],
+            "*.py,*.env,project/pyproject.toml",
             ["*.py", "*.env", "project/pyproject.toml"],
         ),
-    ],
-)
-def test_patterns(args: List[str], patterns: List[str]):
-    parsed, _ = parse_arguments(args)
-    assert parsed.patterns == patterns
-
-
-@pytest.mark.parametrize(
-    ("args", "ignore_patterns"),
-    [
         (
-            [".", "--ignore-patterns", "long-long-long-path,templates/*.py"],
+            "long-long-long-path,templates/*.py",
             ["long-long-long-path", "templates/*.py"],
         ),
     ],
 )
-def test_ignore_patterns(args: List[str], ignore_patterns: List[str]):
+def test_patterns(field: str, input_value: str, result: list[str]):
+    args = [".", f"--{field.replace('_', '-')}", input_value]
+
     parsed, _ = parse_arguments(args)
-    assert parsed.ignore_patterns == ignore_patterns
+    assert getattr(parsed, field) == result
 
 
 @pytest.mark.parametrize(
@@ -88,7 +81,7 @@ def test_ignore_patterns(args: List[str], ignore_patterns: List[str]):
         ),
     ],
 )
-def test_runner_args(args: List[str], runner_args: List[str]):
+def test_runner_args(args: list[str], runner_args: list[str]):
     _, parsed_args = parse_arguments(args)
     assert parsed_args == runner_args
 

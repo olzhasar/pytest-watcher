@@ -61,7 +61,7 @@ class Config:
 
         for f in CLI_FIELDS:
             val = getattr(namespace, f)
-            if val:
+            if val is not None:
                 setattr(self, f, val)
 
         if runner_args:

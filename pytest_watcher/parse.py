@@ -6,7 +6,11 @@ from .constants import DEFAULT_DELAY, VERSION
 
 
 def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]:
-    def _parse_patterns(arg: str):
+    def _parse_patterns(arg: str) -> list[str]:
+        arg = arg.strip()
+        if arg == "":
+            return []
+
         return arg.split(",")
 
     parser = argparse.ArgumentParser(
@@ -19,16 +23,24 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
     )
     parser.add_argument("path", type=Path, help="The path to watch for file changes.")
     parser.add_argument(
-        "--now", action="store_true", help="Trigger the test run immediately"
+        "--now",
+        action="store_true",
+        required=False,
+        default=None,
+        help="Trigger the test run immediately",
     )
     parser.add_argument(
         "--clear",
         action="store_true",
+        required=False,
+        default=None,
         help="Clear the terminal screen before test run",
     )
     parser.add_argument(
         "--notify-on-failure",
         action="store_true",
+        required=False,
+        default=None,
         help="Send BEL notification when tests fail",
     )
     parser.add_argument(
