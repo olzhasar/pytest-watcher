@@ -1,3 +1,4 @@
+import subprocess
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, sentinel
@@ -13,9 +14,19 @@ from pytest_watcher.terminal import Terminal
 from pytest_watcher.trigger import Trigger
 
 
+@pytest.fixture
+def process():
+    return MagicMock(spec=subprocess.Popen)
+
+
+@pytest.fixture
+def mock_terminate_test_suite(mocker: MockerFixture):
+    return mocker.patch("pytest_watcher.watcher.terminate_test_suite", autospec=True)
+
+
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_does_not_invoke_runner_without_trigger(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: Terminal,
@@ -23,13 +34,13 @@ def test_main_loop_does_not_invoke_runner_without_trigger(
 ):
     watcher.main_loop(trigger, config, mock_terminal)
 
-    mock_subprocess_run.assert_not_called()
+    mock_run_test_suite.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_does_not_invoke_runner_before_delay(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
@@ -41,7 +52,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
     with freeze_time("2020-01-01 00:00:04"):
         watcher.main_loop(trigger, config, mock_terminal)
 
-    mock_subprocess_run.assert_not_called()
+    mock_run_test_suite.assert_not_called()
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert trigger.is_active()
@@ -49,7 +60,7 @@ def test_main_loop_does_not_invoke_runner_before_delay(
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_invokes_runner_after_delay(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
@@ -63,15 +74,39 @@ def test_main_loop_invokes_runner_after_delay(
     with freeze_time("2020-01-01 00:00:06"):
         watcher.main_loop(trigger, config, mock_terminal)
 
-    mock_subprocess_run.assert_called_once_with(["custom", "foo", "bar"], check=True)
+    mock_run_test_suite.assert_called_once_with("custom", ["foo", "bar"])
     mock_time_sleep.assert_called_once_with(LOOP_DELAY)
 
     assert not trigger.is_active()
 
 
 @freeze_time("2020-01-01 00:00:00")
+def test_main_loop_interrupt(
+    mock_run_test_suite: MagicMock,
+    mock_terminate_test_suite: MagicMock,
+    mock_time_sleep: MagicMock,
+    process: MagicMock,
+    config: Config,
+    mock_terminal: MagicMock,
+    trigger: Trigger,
+):
+    config.interrupt = True
+    current_process = MagicMock(spec=subprocess.Popen)
+
+    trigger.emit()
+
+    with freeze_time("2020-01-01 00:00:01"):
+        watcher.main_loop(
+            trigger, config, mock_terminal, current_process=current_process
+        )
+
+    mock_terminate_test_suite.assert_called_with(current_process)
+    mock_run_test_suite.assert_called_once_with(config.runner, config.runner_args)
+
+
+@freeze_time("2020-01-01 00:00:00")
 def test_main_loop_clear(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
@@ -88,7 +123,7 @@ def test_main_loop_clear(
 
 @freeze_time("2020-01-01 00:00:00")
 def test_main_loop_no_clear(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     config: Config,
     mock_terminal: MagicMock,
@@ -104,7 +139,7 @@ def test_main_loop_no_clear(
 
 
 def test_main_loop_keystroke(
-    mock_subprocess_run: MagicMock,
+    mock_run_test_suite: MagicMock,
     mock_time_sleep: MagicMock,
     mock_run_command: MagicMock,
     config: Config,
@@ -179,3 +214,7 @@ def test_patterns_and_ignore_patterns_are_passed_to_event_handler(
 
     assert event_handler.patterns == ["*.py", ".env"]
     assert event_handler.ignore_patterns == ["settings.py"]
+
+
+def test_new():
+    breakpoint()

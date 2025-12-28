@@ -32,6 +32,11 @@ def parse_arguments(args: Sequence[str]) -> Tuple[argparse.Namespace, List[str]]
         help="Send BEL notification when tests fail",
     )
     parser.add_argument(
+        "--interrupt",
+        action="store_true",
+        help="Restart current test run (killing the existing process and starting over) on newer file events",
+    )
+    parser.add_argument(
         "--delay",
         type=float,
         required=False,

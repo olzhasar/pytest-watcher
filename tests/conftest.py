@@ -14,9 +14,9 @@ def trigger():
     return Trigger()
 
 
-@pytest.fixture()
-def mock_subprocess_run(mocker: MockerFixture):
-    return mocker.patch("pytest_watcher.watcher.subprocess.run", autospec=True)
+@pytest.fixture
+def mock_run_test_suite(mocker: MockerFixture):
+    return mocker.patch("pytest_watcher.watcher.run_test_suite", autospec=True)
 
 
 @pytest.fixture(autouse=True)

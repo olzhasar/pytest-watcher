@@ -19,6 +19,7 @@ CLI_FIELDS = {
     "runner",
     "patterns",
     "ignore_patterns",
+    "interrupt",
     "notify_on_failure",
 }
 CONFIG_FIELDS = CLI_FIELDS | {"runner_args"}
@@ -35,6 +36,7 @@ class Config:
     runner_args: List[str] = field(default_factory=list)
     patterns: List[str] = field(default_factory=list)
     ignore_patterns: List[str] = field(default_factory=list)
+    interrupt: bool = False
 
     @classmethod
     def create(
@@ -61,7 +63,7 @@ class Config:
 
         for f in CLI_FIELDS:
             val = getattr(namespace, f)
-            if val:
+            if val is not None:
                 setattr(self, f, val)
 
         if runner_args:
