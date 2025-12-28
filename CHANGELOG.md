@@ -1,3 +1,11 @@
+## [0.6.2](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.2) - 2025-12-28
+
+### Bugfixes
+
+- Allow specifying blank patterns via CLI
+- Fix duplicate command entries in menu
+
+
 ## [0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/v0.6.1) - 2025-12-26
 
 ### Bugfixes
