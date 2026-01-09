@@ -18,22 +18,56 @@ from .trigger import Trigger
 logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
 
 
-def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
+logger = logging.getLogger(__name__)
+
+
+def run_test_suite(runner: str, runner_args: list[str]) -> subprocess.Popen:
+    return subprocess.Popen([runner, *runner_args])
+
+
+def interrupt_test_suite(*, process: subprocess.Popen) -> None:
+    logger.info(f"Interrupting process: {process}")
+    process.terminate()
+
+    logger.info(f"Waiting for process: {process}")
+    ret = process.wait()
+    logger.info(f"Process exited with code: {ret}")
+
+
+def main_loop(
+    trigger: Trigger,
+    config: Config,
+    term: Terminal,
+    running_process: subprocess.Popen | None = None,
+) -> subprocess.Popen | None:
+    new_process: subprocess.Popen | None = None
+
+    if running_process:
+        ret = running_process.poll()
+        if ret is not None:
+            if config.notify_on_failure and ret != 0:
+                term.print_bell()
+            running_process = None
+
+            term.enter_capturing_mode()
+            term.print_short_menu(config.runner_args)
+
     if trigger.check():
         term.reset()
 
         if config.clear:
             term.clear()
 
-        try:
-            subprocess.run([config.runner, *config.runner_args], check=True)
-        except subprocess.CalledProcessError:
-            if config.notify_on_failure:
-                term.print_bell()
-        finally:
-            term.enter_capturing_mode()
+        if running_process:
+            if config.interrupt:
+                interrupt_test_suite(process=running_process)
+                running_process = None
+            else:
+                trigger.release()
+                term.enter_capturing_mode()
+                return running_process
 
-        term.print_short_menu(config.runner_args)
+        new_process = run_test_suite(config.runner, config.runner_args)
 
         trigger.release()
 
@@ -42,6 +76,8 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
         commands.Manager.run_command(key, trigger, term, config)
 
     time.sleep(LOOP_DELAY)
+
+    return new_process or running_process
 
 
 def run():
@@ -70,8 +106,10 @@ def run():
         term.print_menu(config.runner_args)
 
     try:
+        current_process = None
+
         while True:
-            main_loop(trigger, config, term)
+            current_process = main_loop(trigger, config, term, current_process)
     finally:
         observer.stop()
         observer.join()
