@@ -13,11 +13,11 @@ class Trigger:
 
     def emit(self):
         with self._lock:
-            self._value = time.time() + self._delay
+            self._value = time.monotonic() + self._delay
 
     def emit_now(self):
         with self._lock:
-            self._value = time.time()
+            self._value = time.monotonic()
 
     def is_active(self):
         return self._value != 0
@@ -27,4 +27,4 @@ class Trigger:
             self._value = 0
 
     def check(self):
-        return self._value > 0 and time.time() > self._value
+        return self._value > 0 and time.monotonic() > self._value
