@@ -1,3 +1,12 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+<!-- towncrier release notes start -->
+
 ## [0.6.3](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.3) - 2026-01-11
 
 ### Features
@@ -10,13 +19,6 @@
 - Use monotonic clock for trigger detection to avoid misbehavior on clock changes.
 
 
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [0.6.2](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.2) - 2025-12-28
 
 ### Bugfixes
@@ -25,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix duplicate command entries in menu
 
 
-## [0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/v0.6.1) - 2025-12-26
+## [0.6.1](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.1) - 2025-12-26
 
 ### Bugfixes
 
@@ -40,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrate [towncrier](https://towncrier.readthedocs.io/en/stable/index.html) into the development process
 
 
-## [0.6.0] - 2025-12-22
+## [0.6.0](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.0) - 2025-12-22
 
 ### Features
 - Add notify-on-failure flag (and config option) to emit BEL symbol on test suite failure.
@@ -49,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate from `poetry` to `uv`.
 - Remove `tox`.
 
-## [0.5.0] - 2025-12-21
+## [0.5.0](https://github.com/olzhasar/pytest-watcher/releases/tag/0.5.0) - 2025-12-21
 
 ### Fixes
 - Merge arguments passed to the runner from config and CLI instead of overriding.
@@ -58,49 +60,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drop support for Python 3.7 & 3.8.
 
 
-## [0.4.3] - 2024-08-28
+## [0.4.3](https://github.com/olzhasar/pytest-watcher/releases/tag/0.4.3) - 2024-08-28
 
 ### Fixes
 
 - Fix watchdog 5.x compatibility issue
 
-## [0.4.2] - 2024-04-01
+## [0.4.2](https://github.com/olzhasar/pytest-watcher/releases/tag/0.4.2) - 2024-04-01
 
 ### Fixes
 
 - Fix bug with consuming abbreviated command line arguments
 
-## [0.4.1] - 2024-02-06
+## [0.4.1](https://github.com/olzhasar/pytest-watcher/releases/tag/0.4.1) - 2024-02-06
 
 ### Fixes
 
 - Fix termios, tty import issue on Windows
 
-## [0.4.0] - 2024-02-06
+## [0.4.0](https://github.com/olzhasar/pytest-watcher/releases/tag/0.4.0) - 2024-02-06
 
 ### Features
 
 - Implement interactive mode with keyboard shortcuts for common operations
 
-## [0.3.5] - 2024-01-28
+## [0.3.5](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.5) - 2024-01-28
 
 ### Features
 
 - Add `--clear` flag to clear the terminal screen before each test run
 
-## [0.3.4] - 2023-06-24
+## [0.3.4](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.4) - 2023-06-24
 
 ### Changes
 
 - Fix `tomllib` import bug
 
-## [0.3.3] - 2023-06-11
+## [0.3.3](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.3) - 2023-06-11
 
 ### Features
 
 - Configuring `pytest-watcher` via `pyproject.toml` file
 
-## [0.3.2] - 2023-06-08
+## [0.3.2](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.2) - 2023-06-08
 
 ### Features
 
@@ -110,7 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix main loop delay
 
-## [0.3.1] - 2023-06-03
+## [0.3.1](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.1) - 2023-06-03
 
 ### Features
 
@@ -121,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix typo in `delay` argument help message
 
-## [0.3.0] - 2023-06-03
+## [0.3.0](https://github.com/olzhasar/pytest-watcher/releases/tag/0.3.0) - 2023-06-03
 
 ### Features
 
@@ -131,7 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reduce default invocation delay form 0.5 to 0.2
 
-## [0.2.6] - 2022-12-11
+## [0.2.6](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.6) - 2022-12-11
 
 ### Features
 
@@ -141,43 +143,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drop support for Python 3.6
 
-## [0.2.5] - 2022-10-30
+## [0.2.5](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.5) - 2022-10-30
 
 ### Features
 
 - New `--now` flag for triggering `pytest` instantly
 - Support for Python 3.11
 
-## [0.2.4] - 2022-10-30
+## [0.2.4](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.4) - 2022-10-30
 
 ### Features
 
 - Support for file move events from not watched path to a watched one (e.g. renaming `test.txt` to `test.py`)
 
-## [0.2.3] - 2021-12-31
+## [0.2.3](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.3) - 2021-12-31
 
 ### Fixes
 
 - Fix python classifiers on Pypi
 
-## [0.2.2] - 2021-12-31
+## [0.2.2](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.2) - 2021-12-31
 
 ### Features
 
 - Support for Python 3.10
 
-## [0.2.1] - 2021-09-18
+## [0.2.1](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.1) - 2021-09-18
 
 ### Features
 
 - Added short command version `ptw` alongside `pytest-watcher`
 
-## [0.2.0] - 2021-09-18
+## [0.2.0](https://github.com/olzhasar/pytest-watcher/releases/tag/0.2.0) - 2021-09-18
 
 ### Changes
 
 - Migrate from `inotify` to `watchdog` for events monitoring
 
-## [0.1.1] - 2021-09-18
+## [0.1.1](https://github.com/olzhasar/pytest-watcher/releases/tag/0.1.1) - 2021-09-18
 
 ### Initial release
