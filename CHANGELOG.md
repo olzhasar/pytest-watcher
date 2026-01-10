@@ -1,3 +1,15 @@
+## [0.6.3](https://github.com/olzhasar/pytest-watcher/releases/tag/0.6.3) - 2026-01-11
+
+### Features
+
+- Add debug mode activated with `PTW_DEBUG` environment variable and improve log messages.
+
+### Bugfixes
+
+- Fix terminal flushing after menu and header prints.
+- Use monotonic clock for trigger detection to avoid misbehavior on clock changes.
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
