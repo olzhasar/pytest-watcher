@@ -15,18 +15,23 @@ BEL_SYMBOL: str = "\a"
 
 
 class Terminal(abc.ABC):
-    def clear(self):
+    def clear(self) -> None:
         pass
 
     def print(self, msg: str) -> None:
         pass
 
-    def print_header(self, runner_args: List[str]):
+    def flush(self) -> None:
+        pass
+
+    def print_header(self, runner_args: List[str]) -> None:
         self.print(f"[pytest-watcher]\nCurrent runner args: [{' '.join(runner_args)}]")
+        self.flush()
 
     def print_short_menu(self, runner_args: List[str]) -> None:
         self.print_header(runner_args)
-        self.print("\nPress w to show menu")
+        self.print("\nPress w to show menu\n")
+        self.flush()
 
     def print_menu(self, runner_args: List[str]) -> None:
         from . import commands
@@ -37,6 +42,8 @@ class Terminal(abc.ABC):
         for command in commands.Manager.list_commands():
             if command.show_in_menu:
                 self.print(f"> {command.caption.ljust(5)} : {command.description}\n")
+
+        self.flush()
 
     def print_bell(self) -> None:
         pass
@@ -58,13 +65,16 @@ class PosixTerminal(Terminal):
     def print(self, msg: str) -> None:
         sys.stdout.write(msg)
 
+    def flush(self) -> None:
+        sys.stdout.flush()
+
     def clear(self) -> None:
         sys.stdout.write("\033c")
-        sys.stdout.flush()
+        self.flush()
 
     def print_bell(self) -> None:
         sys.stdout.write(BEL_SYMBOL)
-        sys.stdout.flush()
+        self.flush()
 
     def enter_capturing_mode(self) -> None:
         sys.stdin.flush()
