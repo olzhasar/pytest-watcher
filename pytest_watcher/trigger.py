@@ -1,5 +1,8 @@
+import logging
 import threading
 import time
+
+logger = logging.getLogger(__name__)
 
 
 class Trigger:
@@ -14,10 +17,12 @@ class Trigger:
     def emit(self):
         with self._lock:
             self._value = time.monotonic() + self._delay
+        logger.debug("Trigger scheduled with delay=%s", self._delay)
 
     def emit_now(self):
         with self._lock:
             self._value = time.monotonic()
+        logger.debug("Trigger scheduled for immediate run")
 
     def is_active(self):
         return self._value != 0
@@ -25,6 +30,7 @@ class Trigger:
     def release(self):
         with self._lock:
             self._value = 0
+        logger.debug("Trigger released")
 
     def check(self):
         return self._value > 0 and time.monotonic() > self._value

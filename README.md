@@ -100,6 +100,14 @@ The following options are reserved for `pytest-watcher` and will not be passed t
 - `--clear` - Clear the terminal screen before each test run
 - `--notify-on-failure` - Send BEL notification on test run failure
 
+### Debug logging
+
+Set `PTW_DEBUG=1` to enable debug-level logging for troubleshooting:
+
+```sh
+PTW_DEBUG=1 ptw .
+```
+
 ### Using a different test runner
 
 You can specify an alternative test runner using the `--runner` flag:

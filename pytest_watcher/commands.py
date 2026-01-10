@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import abc
+import logging
 import sys
 from typing import Iterable
 
 from .config import Config
 from .terminal import Terminal
 from .trigger import Trigger
+
+logger = logging.getLogger(__name__)
 
 
 class Manager:
@@ -41,7 +44,12 @@ class Manager:
     ) -> None:
         command = cls.get_command(character)
         if command:
+            logger.debug(
+                "Running command %s for %s", command.__class__.__name__, repr(character)
+            )
             command.run(trigger, term, config)
+        else:
+            logger.debug("No command mapped for %s", repr(character))
 
 
 class Command(abc.ABC):

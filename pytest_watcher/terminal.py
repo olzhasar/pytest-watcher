@@ -11,6 +11,8 @@ try:
 except ImportError:
     pass
 
+logger = logging.getLogger(__name__)
+
 BEL_SYMBOL: str = "\a"
 
 
@@ -96,9 +98,13 @@ class DummyTerminal(Terminal):
 def get_terminal() -> Terminal:
     if os.name == "posix":
         try:
-            return PosixTerminal()
+            terminal = PosixTerminal()
+            logger.debug("Using POSIX terminal")
+            return terminal
         except Exception:
-            logging.exception(
-                "Unable to initialize terminal state\nInteractive mode is disabled"
+            logger.warning(
+                "Unable to initialize terminal state; interactive mode disabled"
             )
+            logger.debug("Terminal initialization failed", exc_info=True)
+    logger.debug("Falling back to dummy terminal")
     return DummyTerminal()

@@ -1,3 +1,4 @@
+import logging
 from argparse import Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -10,7 +11,6 @@ try:
 except ImportError:
     import tomli as tomllib
 
-
 CONFIG_SECTION_NAME = "pytest-watcher"
 CLI_FIELDS = {
     "now",
@@ -22,6 +22,8 @@ CLI_FIELDS = {
     "notify_on_failure",
 }
 CONFIG_FIELDS = CLI_FIELDS | {"runner_args"}
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -44,10 +46,14 @@ class Config:
 
         config_path = find_config(namespace.path)
         if config_path:
+            logger.debug("Loading configuration from %s", config_path)
             parsed = parse_config(config_path)
             instance._update_from_mapping(parsed)
+        else:
+            logger.debug("No configuration file found")
 
         instance._update_from_namespace(namespace, extra_args or [])
+        logger.debug("Final configuration: %s", instance)
         return instance
 
     def _update_from_mapping(self, data: Mapping):
@@ -75,6 +81,7 @@ def find_config(cwd: Path) -> Optional[Path]:
         config_path = path.joinpath(filename)
 
         if config_path.exists():
+            logger.debug("Found configuration file at %s", config_path)
             return config_path
 
     return None
@@ -90,6 +97,7 @@ def parse_config(path: Path) -> Mapping:
     try:
         data = data["tool"][CONFIG_SECTION_NAME]
     except KeyError:
+        logger.debug("No [%s] section found in %s", CONFIG_SECTION_NAME, path)
         return {}
 
     for key in data.keys():

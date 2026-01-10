@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import subprocess
 import sys
 import time
@@ -15,11 +16,25 @@ from .parse import parse_arguments
 from .terminal import Terminal, get_terminal
 from .trigger import Trigger
 
-logging.basicConfig(level=logging.INFO, format="[ptw] %(message)s")
+logger = logging.getLogger(__name__)
+
+
+def configure_logging() -> None:
+    if _is_debug_mode():
+        log_format = "[ptw] %(levelname)s %(threadName)s %(name)s: %(message)s"
+        level = logging.DEBUG
+    else:
+        log_format = "[ptw] %(message)s"
+        level = logging.INFO
+
+    logging.basicConfig(level=level, format=log_format)
 
 
 def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
     if trigger.check():
+        logger.debug(
+            "Trigger fired; running %s %s", config.runner, " ".join(config.runner_args)
+        )
         term.reset()
 
         if config.clear:
@@ -27,7 +42,8 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
 
         try:
             subprocess.run([config.runner, *config.runner_args], check=True)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as exc:
+            logger.debug("Test run failed with exit code %s", exc.returncode)
             if config.notify_on_failure:
                 term.print_bell()
         finally:
@@ -45,20 +61,32 @@ def main_loop(trigger: Trigger, config: Config, term: Terminal) -> None:
 
 
 def run():
+    configure_logging()
+    logger.debug("Starting pytest-watcher")
+
     term = get_terminal()
     trigger = Trigger()
 
     namespace, runner_args = parse_arguments(sys.argv[1:])
+    logger.debug("CLI arguments parsed: %s", namespace)
+    logger.debug("Extra runner arguments: %s", runner_args)
 
     config = Config.create(namespace=namespace, extra_args=runner_args)
 
     event_handler = EventHandler(
         trigger, patterns=config.patterns, ignore_patterns=config.ignore_patterns
     )
+    logger.debug(
+        "Watching path %s with patterns=%s ignore_patterns=%s",
+        config.path,
+        config.patterns,
+        config.ignore_patterns,
+    )
 
     observer = Observer()
     observer.schedule(event_handler, config.path, recursive=True)
     observer.start()
+    logger.debug("Observer started")
 
     _print_intro(config)
 
@@ -73,6 +101,7 @@ def run():
         while True:
             main_loop(trigger, config, term)
     finally:
+        logger.debug("Shutting down observer")
         observer.stop()
         observer.join()
 
@@ -83,3 +112,10 @@ def _print_intro(config: Config) -> None:
     sys.stdout.write(f"pytest-watcher version {VERSION}\n")
     sys.stdout.write(f"Runner command: {config.runner}\n")
     sys.stdout.write(f"Waiting for file changes in {config.path.absolute()}\n")
+
+
+def _is_debug_mode() -> bool:
+    debug_value = os.getenv("PTW_DEBUG", "")
+
+    normalized = debug_value.lower().strip()
+    return normalized not in {"", "0", "false", "no", "off"}
