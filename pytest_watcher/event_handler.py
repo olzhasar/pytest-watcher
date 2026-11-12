@@ -12,6 +12,24 @@ logger = logging.getLogger(__name__)
 trigger = Trigger()
 
 
+def _at_any_depth(patterns: List[str]) -> List[str]:
+    """
+    Keep the meaning relative patterns had before watchdog 7.
+
+    watchdog < 7 matched patterns with PurePath.match(), which matches a relative
+    pattern from the right, so "*.py" matched "tests/test_app.py".
+    watchdog >= 7 uses PurePath.full_match(), which matches the whole path,
+    so "*.py" only matches files in the watched directory itself.
+    Adding a "**/" variant of every relative pattern gives the same result on both.
+    """
+    result = []
+    for pattern in patterns:
+        result.append(pattern)
+        if not pattern.startswith(("/", "**/")):
+            result.append("**/" + pattern)
+    return result
+
+
 class EventHandler:
     EVENTS_WATCHED = {
         events.EVENT_TYPE_CREATED,
@@ -28,6 +46,8 @@ class EventHandler:
     ):
         self._patterns = patterns or ["*.py"]
         self._ignore_patterns = ignore_patterns or []
+        self._match_patterns = _at_any_depth(self._patterns)
+        self._match_ignore_patterns = _at_any_depth(self._ignore_patterns)
         self._trigger = trigger
 
     @property
@@ -49,8 +69,8 @@ class EventHandler:
 
         return match_any_paths(
             paths,
-            included_patterns=self.patterns,
-            excluded_patterns=self.ignore_patterns,
+            included_patterns=self._match_patterns,
+            excluded_patterns=self._match_ignore_patterns,
         )
 
     def dispatch(self, event: events.FileSystemEvent) -> None:

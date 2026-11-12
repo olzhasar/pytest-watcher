@@ -55,7 +55,16 @@ def test_file_moved_dest_not_watched(event_class, trigger: watcher.Trigger):
     assert not trigger.is_active()
 
 
-@pytest.mark.parametrize("path", ["main.py", "./main.py", "/home/project/main.py"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "main.py",
+        "./main.py",
+        "./tests/test_main.py",
+        "./src/package/module.py",
+        "/home/project/main.py",
+    ],
+)
 def test_patterns_default_watched(trigger: watcher.Trigger, path: str):
     event = events.FileCreatedEvent(path)
 
@@ -82,6 +91,9 @@ def test_patterns_default_not_watched(trigger: watcher.Trigger, path: str):
         (["main.pyc"], "main.pyc"),
         (["/home/path/example.txt"], "/home/path/example.txt"),
         (["*some*.txt"], "/home/path/something.txt"),
+        (["*.py", "pyproject.toml"], "./package/pyproject.toml"),
+        (["tests/*.py"], "./tests/test_main.py"),
+        (["tests/*.py"], "/home/project/tests/test_main.py"),
     ],
 )
 def test_patterns_custom_watched(
@@ -120,6 +132,8 @@ def test_patterns_custom_not_watched(
         (["ignore/*.py"], "ignore/myfile.py"),
         (["ignore/**"], "ignore/main.py"),
         (["*pytest*"], "/home/project/pytest.yaml"),
+        (["settings.py"], "./package/settings.py"),
+        (["ignore/*.py"], "/home/project/ignore/myfile.py"),
     ],
 )
 def test_patterns_ignore_not_watched(
