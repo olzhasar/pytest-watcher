@@ -118,7 +118,7 @@ ptw . --runner tox
 
 ### Watching different patterns
 
-You can use the `--patterns` flag to specify file patterns that you want to watch. It accepts a list of Unix-style patterns separated by a comma. The default value is "\*.py"
+You can use the `--patterns` flag to specify file patterns that you want to watch. It accepts a list of Unix-style patterns separated by a comma. The default value is "\*.py". A pattern that does not start with `/` is matched at any depth, so "\*.py" also covers `tests/test_app.py`.
 
 Example:
 
